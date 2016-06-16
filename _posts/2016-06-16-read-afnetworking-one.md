@@ -36,8 +36,6 @@ AFURLSessionManager为其中每个请求任务都创建了一个任务代理对�
 * `- URLSession:dataTask:didReceiveData:`将接收到的数据添加到mutableData属性中。
 * `- URLSession:downloadTask:didFinishDownloadingToURL:`在这个方法中调用了该类的downloadTaskDidFinishDownloading回调，然后将下载到的文件移动到目标下载位置，上述回调的返回值就是目标下载位置，如果移动文件失败，发送了AFURLSessionDownloadTaskDidFailToMoveFileNotification通知。
 
-### 初始化
-
 ## AFURLSessionManager
 
 ### 初始化
