@@ -6,8 +6,11 @@ categories:
 ---
 
 # AFURLSessionManager阅读
+
 本笔记为scfhao阅读AFNetworking-AFURLSessionManager类源代码时记录，当前AFNetworking版本3.0.4，笔记创建时间：2016-6-14。这篇笔记中，用“其”代表AFURLSessionManager类。为方便稍后阅读，本篇笔记的记录顺序尽量选择更容易理解的顺序，尽量不多贴代码。
+
 ## AFURLSessionManagerTaskDelegate
+
 AFURLSessionManager为其中每个请求任务都创建了一个任务代理对象，这个代理对象，这些代理对象可以管理其对应的任务的请求进度，如上传任务的上传进度、下载任务的下载进度，还实现了几个请求任务代理方法（NSURLSessionDelegate）。这个类设计的很小巧、精妙，这个类使AFURLSessionManager对上传、下载进度的监控更灵活。其属性列表如下：
 
 * manager 对所属AFURLSessionManager的一个弱引用。
@@ -36,7 +39,9 @@ AFURLSessionManager为其中每个请求任务都创建了一个任务代理对�
 ### 初始化
 
 ## AFURLSessionManager
+
 ### 初始化
+
 其指定初始化方法为：`- initWithSessionConfiguration:`，在这个方法里，其初始化了自身的一些属性。初始化的属性列表：
 
 * sessionConfiguration 初始化为本方法的参数，如果未指定，则初始化为NSURLSessionConfiguration.defaultSessionConfiguration。
@@ -51,6 +56,7 @@ AFURLSessionManager为其中每个请求任务都创建了一个任务代理对�
 初始化完上述属性后，调用了session属性的getTasksWithCompletionHandle:方法，为已存在的task设置了任务代理，这里我有点**疑惑**，刚创建的session，还没有创建任何task，能获取到task吗？
 
 ### 创建请求任务
+
 这里的请求任务指NSURLSessionTask及其子类（NSURLSessionDataTask、NSURLSessionUploadTask、NSURLSessionDownloadTask）。初始化了AFURLSessionManager对象后，就可以调用其创建请求任务的方法了，请求任务的方法如下：
 
 * `- dataTaskWithRequest:completionHandle:`
