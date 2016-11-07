@@ -26,12 +26,38 @@ categories:
 
 - (void)taskDidComplete:(NSNotification *)notification {
     NSDictionary *userInfo = [notification userInfo];
+    NSURLSessionDataTask *task = notification.object;
     NSError *error = userInfo[AFNetworkingTaskDidCompleteErrorKey];
     NSData *receivedData = userInfo[AFNetworkingTaskDidCompleteResponseDataKey];
     NSString *receivedDataAsString = [[NSString alloc]initWithData:receivedData encoding:NSUTF8StringEncoding];
     if (error) {
-        NSLog(@"\n***********************************\n使用AFNetworking调用请求失败\n错误：%@\n--------------------------------\nReceivedData:%@\n***********************************", error, receivedDataAsString);
+        [self printInfoForTask:task recievedData:receivedDataAsString error:error];
+    } else {
+        [self printInfoForTask:task recievedData:receivedDataAsString error:nil];
     }
+}
+
+- (void)printInfoForTask:(NSURLSessionTask *)task recievedData:(NSString *)receivedData error:(NSError *)error {
+    static NSString * logHeader = @"\n<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n";
+    static NSString * logFooter = @">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>";
+    static NSString * line = @"---\n";
+    NSMutableString *log = [NSMutableString string];
+    NSURLRequest *request = task.originalRequest;
+    [log appendString:logHeader];
+    [log appendFormat:@"使用AFNetworking调用<%@>请求[%@]\n", request.HTTPMethod, error == nil ? @"成功": @"失败"];
+    [log appendString:line];
+    [log appendFormat:@"请求地址:%@\n", [request.URL absoluteString]];
+    if ([request.HTTPMethod isEqualToString:@"POST"]) {
+        [log appendFormat:@"POST内容:%@\n", [[NSString alloc]initWithData:request.HTTPBody encoding:NSUTF8StringEncoding]];
+    }
+    [log appendString:line];
+    if (error) {
+        [log appendFormat:@"错误详情:%@\n", error];
+        [log appendString:line];
+    }
+    [log appendFormat:@"收到数据:%@\n", receivedData];
+    [log appendString:logFooter];
+    SODebugLog(@"%@", log);
 }
 
 ```
