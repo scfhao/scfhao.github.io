@@ -23,3 +23,18 @@ scfhao是一个来自山西的iOS开发者，现在在北漂～。
 ## 联系本人
 
 如果你是个喜欢技术，但身边又没合适的人交流，欢迎骚扰scfhaoQQ:2945214949（备注iOS交流）。拿来主义者勿扰！
+
+## 捐赠
+
+如果你想对 scfhao 表示一下，包括但不限于：
+
+1. 让 scfhao 攒够二线城市买房首付。
+2. 让 scfhao 攒够结婚彩礼。
+3. 请 scfhao 吃一顿。
+4. 让 scfhao 过的更好。
+5. 或者感谢一下 scfhao。
+6. ... ...
+
+那么欢迎通过微信对 scfhao 进行捐赠，金额不限，来者不拒:-) 
+
+![捐赠scfhao]({{ site.baseurl }}/images/scfhao_wechat_pay_code.png)

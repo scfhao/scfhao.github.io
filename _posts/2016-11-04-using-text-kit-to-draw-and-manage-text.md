@@ -5,99 +5,121 @@ date: 2016-11-04 08:29:59 +0800
 categories:
 ---
 
-引言：本文来自Apple官方文档《Text Programming Guide for iOS: Using Text Kit to Draw and Manager》，可能会由于本人英语水平（未过英语四级考试）、理解能力和文档时效等问题造成与原文出入较大，阅读时请慎重！如遇到问题，请在评论中指出。
+引言：本文来自Apple官方文档《Text Programming Guide for iOS: Using Text Kit to Draw and Manager》，可能会由于本人英语水平较低（未过英语四级考试）、理解能力和文档时效等问题造成与原文出入较大，阅读时请慎重！如遇到问题，请在评论中指出。
 
-UIKit 框架中提供了一些用来在App的用户界面中展示文本的类：UITextView, UITextField, UILabel 和 UIWebView。由 UITextView 类创建的文本视图意在用来展示大量的文本。UITextView 底层有一个非常强大的布局引擎叫做 Text Kit。如果你需要自定义或者介入这个布局过程，你可以使用 Text Kit。对于更细粒度的文本自定义解决方案的需求，可以参考《Lower Level Text-handling Technologies》中关于更底层技术的描述。
+正如《Displaying Text Content in iOS》部分描述，UIKit 框架中提供了一些用来在App的用户界面中展示文本的类：UITextView, UITextField, UILabel 和 UIWebView。由 UITextView 类创建的文本视图意在用来展示大量的文本。UITextView 底层有一个非常强大的布局引擎叫做 Text Kit。如果你需要自定义或者介入这个布局过程，你可以使用 Text Kit。对于更细粒度的文本和特殊的需要自定义解决方案的需求，可以使用《Lower Level Text-handling Technologies》中描述的更底层的技术作为替代。
 
-TextKit是UIKit框架提供的高品质排版服务的类和协议的集合。TextKit构建于CoreText之上，它同样提供了速度与强大。
-TextKit框架在iOS 图形文本框架中的位置：
-![](../images/utktdamt/9-1.png =500x100)
+TextKit 是 UIKit 框架中提供的高品质的保存、布局、展示精细排版的所有特征（如字距、连字、换行和对齐）的排版服务的类和协议的集合。TextKit 构建于 CoreText 之上，所以它提供了同样的速度与强大。UITextView 完全集成了 Text Kit，它提供的编辑和展示功能允许用户输入文本、指定格式属性并查看结果。Text Kit 其他方法提供了文本存储和布局功能。下图展示了 Text Kit 在 iOS 文本和图像框架中的位置。
+
+![Text Kit Framework Position]({{ site.baseurl }}/images{{ page.id }}/1.png)
+
+Text Kit 给了你在用户界面元素上渲染文本的完整的控制。除 UITextView 外，UITextField 和 UILabel 也是在 Text Kit 之上构建的，它可以无缝地和动画、UICollectionView 和 UITableView 集成。Text Kit 被设计为拥有完全可扩展的面向对象架构，支持子类化、委托和一组完整的通知，支持深度定制。
 
 ## TextKit主要的成员对象
 
-TextKit主要对象之间的数据流图如下。Text views是UITextView类的实例，Text containers是NSTextContainer类的实例，layout manager是NSLayoutManager类的实例，Text storage是NSTextStorage类实例。在TextKit中，一个NSTextStorage对象存储文本以供UITextView对象显示和NSLayoutManager对象在一个NSTextContainer对象上布局。
+Text Kit 主要对象之间的数据流图如下图。Text views 是 UITextView 类的实例，Text containers 是 NSTextContainer类的实例，layout manager 是 NSLayoutManager 类的实例，Text storage 是 NSTextStorage 类的实例。在 Text Kit 中，一个 NSTextStorage 对象存储用于 UITextView 对象显示和 NSLayoutManager 对象在一个 NSTextContainer 对象上布局的文本。
 
-NSTextContainer对象定义了一个可供文本布局的区域。text container默认定义一个方形区域，但可以通过创建NSTextContainer的子类来定义其他形状如圆、五边形或不规则的形状。text container不仅定义了文本区域的边界，同时它还维护了一个Bezier paths数组定义了区域中不能布局文本的地方（例外区）。当布局发生时，文本在例外区以外布局，这样就为包含图像和其他非文本的元素提供了一种方式。
+![Primary Text Kit Objects]({{ site.baseurl }}/images{{ page.id }}/2.png)
 
-NSTextStorage为Text Kit扩展的文本处理系统定义了存储机制基础。NSTextStorage是NSMutableAttributedString的一个子类，可用来储存文本系统处理的文本和属性。它保证了文本和属性在编辑操作中可以保持协调一致。除了保存文本，NSTextStorage对象还管理了NSLayoutManager对象的集合，当文本和属性发生改变时通知NSLayoutManager来做出改变。
+一个 NSTextContainer 对象可以定义一个可供文本布局的区域。text container 通常会定义一个方形区域，但可以通过创建一个 NSTextContainer 的子类来定义其他形状如圆、五边形或不规则的形状。text container 不仅定义了可以填充文本区域的边界，同时它还维护了一个定义区域中不能布局文本的地方（例外区）的 Bezier paths 数组。当布局发生时，文本在例外区以外布局，这就为包含图像和其他非文本元素提供了一种方式。
 
-NSLayoutManager对象筹划其他文本处理对象的操作。它在将NSTextStorage中的数据转换为视图的显示区域的操作中进行调解。它将Unicode码映射为NSTextContainer布局区域上的文字。
+NSTextStorage 为 Text Kit 的扩展文本处理系统（extended text-handling system）定义了基本的存储机制。NSTextStorage 是 NSMutableAttributedString 的一个子类，储存了文本系统操作的文本和属性。它保证了文本和属性可以在编辑操作中保持一贯的状态。除了保存文本，NSTextStorage 对象还管理了一些 NSLayoutManager 对象的集合，在必要时将文本或属性的变化通知给它们来重新布局或重新展示。
 
-注意： NSLayoutManager、NSTextStorage和NSTextContainer可以在子线程中使用，但要保证只在单一的线程中被使用。
+NSLayoutManager 对象统筹其他文本处理对象的操作。协调将 NSTextStorage 中的数据转换为在视图的显示区域中渲染的文本的操作。将 Unicode 码映射为字符并监督 NSTextContainer 对象定义的区域上的布局。
+
+> 注意： NSLayoutManager、NSTextStorage 和 NSTextContainer 可以在子线程中访问，但要保证只在单一的线程中被访问。
 
 ## 文本属性
 
-Text Kit处理三种文本属性：文字属性，段落属性和文档属性。文字属性包括字体、颜色和下标等可以在单独的或一段文字上设定的特性。段落属性如缩进、tabs，和行间距。文档属性包括纸张大小，边距和视图缩放百分比等特性。
+Text Kit 处理三种文本属性：字符属性、段落属性和文档属性。字符属性包括如字体、颜色和下标等可以在单独的字符或一个区间的字符关联的特性。段落属性是如缩进、tabs和行间距等的特性。文档属性包括如纸张大小，边距和视图缩放比例等文档级别的特性。
 
 ### 字符属性
 
-attributed string通过字典中的键值对的方式存储文字属性。键为属性的名称，用一个字符串常量（如NSFontAttributeName）来表示。下图展示了一个属性字典应用与一个属性字符串中的情况。
+属性字符串（attributed string）用字典中的键值对来存储字符属性。键作为属性的名称，用一个字符串常量标识符（如NSFontAttributeName）来表示。下图展示了一个属性字典作用于一个属性字符串中的一个区间上。
 
-理论上，属性化字符串中每个字符都有一个属性字典与之对应。然而通常一个属性字典应用于一串字符上。NSAttributedString类提供了根据字符的序号获取对应的属性字典和该属性适用的区间的方法如：attributesAtIndex:effectiveRange:.
+![Composition of an attributed string]({{ site.baseurl }}/images{{ page.id }}/3.png)
 
-你可以向NSTextStorage中合适的字符区间通过NSMutableAttributedString的addAttribute:value:range:添加属性，你也可以创建一个包含自定义的属性的键值对的字典然后通过addAttributes:range:方法添加到一个区间的字符上。要使用自定义的属性时，你需要实现一个NSLayoutManager的子类。你自定义的子类应该重写drawGlyphsForGlyphRange:atPoint:方法。在这个方法里可以先调用父类相应的方法来绘制文字然后在上面加上自定义的属性，或者完全使用自己的方式绘制。
+理论上，属性字符串中每个字符都有一个相关联的属性字典。然而通常一个属性字典作用于更长的字符区间上。NSAttributedString 类提供了根据字符的位序获取关联的属性字典和该属性字典的属性值作用的区间的方法如：`attributesAtIndex:effectiveRange:`.
+
+除了使用预定义的属性外，你可以选择向一个字符区间指定任意的属性键值对。你可以向 NSTextStorage 中合适的字符区间通过 NSMutableAttributedString 的`addAttribute:value:range:`方法添加属性，你也可以创建一个包含一些自定义属性的键和值的字典然后通过`addAttributes:range:`方法一步将它们添加到一个字符区间上。要使用自定义的属性时，你需要自定义一个的 NSLayoutManager 的子类来使用它们。你自定义的子类应该重写`drawGlyphsForGlyphRange:atPoint:`方法。在这个方法里可以先调用父类相应的方法来绘制字符区间然后在上面加上你自定义的属性，或者也完全使用自己的方式绘制字符。
 
 ### 段落属性
 
-段落属性作用于layout manager安排页面上段落中的行。文本系统中的段落属性抽象为NSParagraphStyle类。预定义的文字属性中的NSParagraphStyleAttributeName键指向一个NSParagraphStyle对象，包含了对应区间的文字的段落属性。属性修复机制保证了每个段落中的文本只有一个NSParagraphStyle对象与之对应。
-段落属性包含如alignment，tab stops，line-breaking mode，和line spacing（leading）等特性。
+段落属性影响布局管理器（layout manager）将文本行布置到页面航的段落中的方式。文本系统在 NSParagraphStyle 类的对象中封装段落属性。预定义的字符属性中的 NSParagraphStyleAttributeName 键的值指向一个包含了这个字符区间的段落属性的 NSParagraphStyle 对象。属性修复（attribute fixing）确保只有一个 NSParagraphStyle 对象属于各个段落中的字符。
+
+段落属性包含如对其、制表符停止（tab stop）、换行模式、和行间距（也被称为leading）等特性。
 
 ### 文档属性
 
-文档属性属于文档整体。文档属性包含纸张大小，边距和视图缩放比例等特性。尽管文本系统中没有内置的存储文档属性的机制，NSAttributedString的初始化方法如initWithRTF:documentAttributes:可以让你传递一个属性字典来控制RTF或HTML数据的文档属性。相反的，写入RTF数据的方法如RTFFromRange:documentAttributes:也让你传一个属性字典。
+文档属性属于文档整体。文档属性包含纸张大小、边距和视图缩放比例等特性。尽管文本系统中没有内置的存储文档属性的机制，NSAttributedString 的初始化方法如`initWithRTF:documentAttributes:`可以将从 RTF 或 HTML 数据流中派生出的文档属性填充到你提供的占位字典对象中。相反的，如果给写入RTF数据的方法如`RTFFromRange:documentAttributes:`传递一个包含文档属性的字典，它会写入文档属性。
 
 ### 属性修正
 
-编辑属性字符串时会引发需要被属性修复清理掉的属性矛盾。UIKit扩展了NSMutableAttributedString，定义了fixAttributesInRange:方法来修复附件、字符和段落属性中的矛盾。这保证了当一个附件所绑定的字符被删除时这个附件也被移除、字符属性只应用在支持（如字体）的字符上，和段落属性在整个段落中贯穿始终。
+编辑属性字符串可能引起的前后不一致必须通过属性修复（attribute fixing）来清除。UIKit 通过定义`fixAttributesInRange:`方法扩展了 NSMutableAttributedString 来修复附件、字符和段落属性中的矛盾。这些方法保证了当附件字符被删除时其所关联的属性也将不复存在，字符属性只应用在支持这个字体的字符上，段落属性在整个段落中保持一致。
 
-## 通过编程改变文本存储
+## 使用编程的方式改变文本存储
 
-NSTextStorage对象在Text Kit中用来代表字符数据。这些数据的格式是一个用unicode编码的连接了属性的字符序列。表示属性化字符串的类有NSAttributedString和NSMutableAttributedString，和子类NSTextStorage。如字符属性中所讲，文本中的每一段文字都有一个键值对字典与其联系。键为一个属性的名称，对应的值就是对应的属性值。
+NSTextStorage 对象为 Text Kit 提供字符仓库的服务。此数据的格式是字符序列（使用unicode编码）和关联了属性（如字体、颜色和段落属性）的属性字符串。表示属性字符串的类有 NSAttributedString 和 NSMutableAttributedString（NSTextStorage 就是它的子类）。如字符属性小节描述，每一个文本块中的字符都有一个键值对字典与其相关联。键为属性名（如NSFontAttributeName），对应的值指定字符的这个属性的特征（如Helvetica 12-point）。
 
-有三个步骤编程的方式编辑text storage对象。第一步是向其发送一个beginEditing消息来宣布一组修改。
-在第二个步骤中，你向它发送一些编辑消息，例如replaceCharactersInRange:withString:和setAttributes:range:,来反映字符或属性的改变。每次发送这些消息时，text storage对象调用edited:range:changeInLength:来跟踪从收到beginEditing消息后受影响的字符区间。
-在第三步中，当你完成了对text storage对象的修改，向其发送endEditing消息。这会使其调用其delegate的textStorage:willProcessEditing:range:changeInLength:和其自身的processEditing方法，修复改变区间的属性冲突。
+通过编程的方式编辑text storage对象有三个阶段。第一个阶段是向其发送一个`beginEditing`消息来宣布一组修改。
 
-修正完属性后，text storage对象向其delegate发送textStorage:didProcessEditing:range:changeInLength:方法，给delegate一个合适时机来验证属性的改变。（尽管delegate在这个方法中可以修改text storage对象的字符属性，但这会使text storage处于一个前后矛盾的状态。）最后，text storage对象向每个联系的layout manager发送processEditingForTextStorage:edited:range:changeInLength:invalidateRange:消息，layout manager们轮流的使用这些信息来重新计算他们的文字位置并在必要时重新展示。
+在第二个阶段中，你向它发送一些编辑消息如`replaceCharactersInRange:withString:`和`setAttributes:range:`来使字符或属性改变。每次发送这样的消息时，text storage 对象调用`edited:range:changeInLength:`来跟踪从收到`beginEditing`消息后受影响的字符区间。
+
+在第三个阶段中，当你完成了对 text storage 对象的修改，向其发送一个`endEditing`消息。这会使其调用其 delegate 的`textStorage:willProcessEditing:range:changeInLength:`和其自身的`processEditing`方法，修复记录的有修改的字符区间上的属性。
+
+修复完属性后，text storage 对象向其 delegate 发送`textStorage:didProcessEditing:range:changeInLength:`方法，给 delegate 一个验证并进行可能的修改的时机。（尽管 delegate 可以在这个方法中修改 text storage 对象的字符属性，但不可以在 text storage 对象处于冲突状态时修改字符本身。）最后，text storage 对象向每个关联的 layout manager 发送`processEditingForTextStorage:edited:range:changeInLength:invalidateRange:`消息--指出 text storage 对象中改变了的字符区间以及这些修改的性质。layout manager 们轮流的使用这些信息来重新计算他们的文字位置并在必要时重新展示。
 
 ## 使用字体对象
 
-计算机自体是如OpenType或TrueType的格式的数据文件，包含了图形信息的集合和图形渲染需要的其他信息。UIFont提供了获取和设置字体信息的接口。一个UIFont实例提供了访问字符和图形的入口。Text Kit结合字符信息和字体信息来选择布局要使用的图形。你可以将字体对象传递给接收字体作为参数的方法中来使用。字体对象是不可变的，所以在应用的多个线程中使用是安全的。
+计算机字体是使用了如 OpenType 或 TrueType 的格式的数据文件，包含描述一组字形的信息，以及在字形渲染中使用的各种补充信息。UIFont 类提供了获取和设置字体信息的接口。一个 UIFont 实例提供对字体特性和字形的访问。Text Kit 结合字符信息和字体信息来选择文本布局时要使用的字形。通过将字体对象传递给接收字体作为参数的方法中来使用字体对象。字体对象是不可变的，所以可以安全地在应用中多个线程中使用它们。
 
-你不能使用alloc和init方法来创建UIFont对象；而要用preferredFontForTextStyle:或fontWithName:size:来创建。也可以用font descriptor通过fontWithDescriptor:size:来创建字体。这些方法会先从已存在的字体对象中查找是否存在指定特征的字体对象，如果有就返回，否则，创建一个合适的字体对象。
+要使用`preferredFontForTextStyle:`或`fontWithName:size:`来创建 UIFont对象而不能使用 alloc 和 init 方法来创建。也可以用 font descriptor 通过`fontWithDescriptor:size:`来创建字体。这些方法会先从现有的字体对象中查找是否存在指定特征的字体对象，如果有就返回它，否则，根据请求的字体数据创建一个合适的字体对象。
 
 ### 文本类型
 
-Text styles，在iOS 7带来的由被称为动态类型的机制实现的对想要使用的字体的语义描述。Text styles于UIFontDescriptor.h中用常量进行组织和定义。text style描述的font可能考虑一些动态的因素如用户的内容大小便好（通过UIApplication的preferredContentSizeCategory属性表示）与实际使用的不同。可以通过向UIFont的preferredFontForTextStyle:方法传递常量来获得字体对象。通过向UIFontDescriptor的preferredFontDescriptorWithTextStyle:方法传递相应的常量来获得font descriptor对象。
-常量
-UIFontTextStyleHeadline           用于headings的字体
-UIFontTextStyleSubheadline     用于subheads的字体
-UIFontTextStyleBody                用于body文本的字体
-UIFontTextStyleFootnote          用于footnotes的字体
-UIFontTextStyleCaption1          用于标准的首部的字体
-UIFontTextStyleCaption2          用于副首部的字体
+文本类型（Text styles），iOS 7 带来的由被称为动态类型(*Dynamic Type*)的机制实现的对字体的预期用途的语义描述。文本类型通过 UIFontDescriptor.h 中定义的常量（如下表所示）进行组织使用。用于由文本样式描述的目的的实际字体可能基于一些动态考虑而变化，包括由 UIApplication 属性`preferredContentSizeCategory`表示的用户的内容大小类别偏好。要获取给定文本样式的字体对象，您需要将相应的常量传递给 UIFont 方法`preferredFontForTextStyle:`. 要获取文本样式的字体描述符，请将常量传递给 UIFontDescriptor 的`preferredFontDescriptorWithTextStyle:`方法。
 
-Text styles通过动态类型机制为应用带来了许多改善你的文本的阅读性的特性，动态类型可以协调并响应用户的偏好。当你调用preferredFontForTextStyle:时，包含了用户偏好和当前环境和使用指定的text style等特征的字体被返回。
+表：文本类型常量
 
-根据text style得到的字体大小应该被用于应用中所有的文本中，除了界面元素如按钮、标签等。当然你需要合适你应用的text style。同时，观察UIContentSizeCategoryDidChangeNotification也很重要，这样可以在用户修改了内容尺寸类别时重新布局。当你的应用收到这个通知时，它应该向Auto Layout下的view发送invalidateIntrinsicContentSize或者向手动布局的用户界面元素发送setNeedsLayout消息。同时要使先前的font或font descriptor失效，然后获取新的。
+---------------------------|------------------------
+UIFontTextStyleHeadline    |    用于标题的字体
+UIFontTextStyleSubheadline |    用于子标题的字体
+UIFontTextStyleBody        |    用于正文文本的字体
+UIFontTextStyleFootnote    |    用于注脚的字体
+UIFontTextStyleCaption1    |    用于标准字幕的字体
+UIFontTextStyleCaption2    |    用于替代字幕的字体
+
+文本类型通过动态类型机制为应用带来了许多提高文本可读性的优势，动态类型以协调的方式响应用户的偏好，并响应辅助功能设置以增强易读性和超大类型。也就是说，当你调用`preferredFontForTextStyle:`时，返回的特定的字体除了对指定的文本类型常量用途进行处理外，还包括根据用户偏好和上下文而变化的特征，包括跟踪（字母间距）调整。
+
+根据文本类型常量得到的字体应该被用于应用中所有的文本中，除了界面元素如按钮、标签和条（bar）等。当然你需要合适你应用的文本类型。同时，观察`UIContentSizeCategoryDidChangeNotification`也很重要，这样可以在用户修改了内容尺寸类别时重新布局。当你的应用收到这个通知时，它应该向 Auto Layout 布局的 view 发送`invalidateIntrinsicContentSize`或者向手动布局的用户界面元素发送`setNeedsLayout`消息。同时要使先前的 font 或 font descriptor 失效，然后获取新的。
 
 ### 使用字体描述
 
-字体描述，UIFontDescriptor类的实例，提供了通过一个属性字典描述字体的方法，并且可以用它来创建UIFont对象。你可以从一个字体描述创建一个UIFont对象，也可以从UIFont对象得到一个描述，还可以改变这个描述然后用它生成一个新的字体对象。你也可以用一个字体描述来指定应用提供的自定义的字体。
+字体描述，UIFontDescriptor类的实例，提供了通过一个属性字典来描述字体的方式，并可以用它来创建 UIFont 对象。你可以从一个字体描述创建一个 UIFont 对象，也可以从 UIFont 对象得到一个描述，还可以改变这个描述然后用它生成一个新的字体对象。你也可以用一个字体描述来指定应用中提供的自定义的字体。
 
-字体描述可以被存档，这样可以高效的使用text style。你不应该使用text style来缓存字体对象因为text style是动态的（根据用户的偏好不同会改变）。但你可以缓存字体描述，然后稍后用它再创建相同特征的字体对象。
+字体描述可以被存档，这样可以高效的使用文本类型。你不应该为文本类型缓存字体对象，因为这是动态的（根据用户的偏好不同会改变）。但你可以缓存字体的描述，然后稍后用它再创建相同特征的字体对象。
 
 你可以使用字体描述来查询系统中符合特定属性的可用字体，然后创建符合这些属性（名称、特点、语言或其他特性）的字体对象。例如，你可用使用一个字体描述来获取所有的符合给定的字体簇名称的字体，使用CSS标准定义的簇名称：
+
+```
 UIFontDescriptor *helveticaNeueFamily = [UIFontDescriptor fontDescriptorWithFontAttributes:@{UIFontDescriptorFamilyAttribute: @“Helvetica Neue”}];
 NSArray *matches = [helvetecaNeueFamily matchingFontDescriptorsWithMandatoryKeys:nil];
-matchingFontDescriptorsWithMandatoryKeys:方法返回系统中所有的Helvetica Neue字体的描述，如HelveticaNeue, HelveticaNeue-Medium, HelveticaNeue-Light, HelveticaNeue-Thin,等。
+```
 
-你可以修改preferredFontForTextStyle:方法返回的字体，通过应用形状特征，如粗体、斜体、宽松、紧凑：
+`matchingFontDescriptorsWithMandatoryKeys:`方法返回系统中所有的 Helvetica Neue 字体的描述的数组，如HelveticaNeue, HelveticaNeue-Medium, HelveticaNeue-Light, HelveticaNeue-Thin,等。
+
+你可以通过应用字形特征（如粗体、斜体、宽松、紧凑）来修改`preferredFontForTextStyle:`方法返回的字体，可以使用字体描述来修改特定的特征：
+
+```
 UIFontDescriptor *fontDescriptor = [UIFontDescriptor preferredFontDescriptorWithTextStyle:UIFontTextStyleBody];
 UIFontDescriptor *boldFontDescriptor = [fontDescriptor fontDescriptorWithSymbolicTraits:UIFontDescriptorTraitBold];
 UIFont *boldFont = [UIFont fontWithDescriptor:boldFontDescriptor size:0.0];
-这段代码中最后一句的size参数传0.0是指定使用字体描述中的字体大小，在动态类型机制中，这是被提倡的。
+```
 
+这个代码片段先取到正文文本类型的字体描述，然后修改这个字体描述为加粗特征，最后使用 UIFont 类的`fontWithDescriptor:size:`方法返回一个实际用于正文文本的加粗字体对象。传递给`fontWithDescriptor:size:`方法的size为0.0是为了保护字体描述返回的原始尺寸属性。由于字体大小是由动态类型机制决定的，所以提倡这么做。
+
+
+000000000000000000000000
 ### 激活字体特性
 
 字体描述的另一个重要的用途就是激活和选择自体特性。字体特性是文本系统渲染文字形状时控制其外表的排版属性。字体特性只在字体设计者选择包含字体特性的字体中可用。有一些字体特性只在少许的字体中可用，而更多的特性在大多数字体中可用。另外，同一字体的不同版本，安装在不同平台的版本，它们可用的字体特性可能是不同的。
