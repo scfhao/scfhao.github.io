@@ -7,6 +7,8 @@ categories:
 
 引言：本文来自Apple官方文档《Text Programming Guide for iOS: Using Text Kit to Draw and Manager》，可能会由于本人英语水平较低（未过英语四级考试）、理解能力和文档时效等问题造成与原文出入较大，阅读时请慎重！如遇到问题，请在评论中指出。
 
+---
+
 正如《Displaying Text Content in iOS》部分描述，UIKit 框架中提供了一些用来在App的用户界面中展示文本的类：UITextView, UITextField, UILabel 和 UIWebView。由 UITextView 类创建的文本视图意在用来展示大量的文本。UITextView 底层有一个非常强大的布局引擎叫做 Text Kit。如果你需要自定义或者介入这个布局过程，你可以使用 Text Kit。对于更细粒度的文本和特殊的需要自定义解决方案的需求，可以使用《Lower Level Text-handling Technologies》中描述的更底层的技术作为替代。
 
 TextKit 是 UIKit 框架中提供的高品质的保存、布局、展示精细排版的所有特征（如字距、连字、换行和对齐）的排版服务的类和协议的集合。TextKit 构建于 CoreText 之上，所以它提供了同样的速度与强大。UITextView 完全集成了 Text Kit，它提供的编辑和展示功能允许用户输入文本、指定格式属性并查看结果。Text Kit 其他方法提供了文本存储和布局功能。图1展示了 Text Kit 在 iOS 文本和图像框架中的位置。
