@@ -11,7 +11,7 @@ email: scfhao@gmail.com
 description: > # this means to ignore newlines until "baseurl:"
   scfhao 博客
 baseurl: "/blog" # the subpath of your site, e.g. /blog
-url: "https://scfhao.coding.me" # the base hostname & protocol for your site
+url: "https://scfhao.coding.me/blog" # the base hostname & protocol for your site
 # twitter_username: scfhao
 github_username:  scfhao
 exclude: ["Rakefile"]
