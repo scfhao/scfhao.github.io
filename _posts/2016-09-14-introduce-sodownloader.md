@@ -5,54 +5,85 @@ date: 2016-09-14 11:48:03 +0800
 categories:
 ---
 
-在客户端应用中，多文件下载及下载监控的功能是很常见的，比如音乐类App中的下载音乐列表的功能，视频类App中下载视频列表等，可以说只要涉及到下载文件的功能都会有类似的需求。
+## 谈谈下载功能
 
-对于下载功能的实现方式，你可以尝试用NSURLConnection、用NSURLSession+NSURLSessionDownloadTask或者用我没用过的CFNetwork实现，但如果你看过一些AFNetworking的源码后，你一定会觉得基于AFNetworking来实现是最佳的方式，因为AFURLSessionManager已经帮你把NSURLSession部分所有的功能都帮你封装好了，甚至连下载进度回调都是现成的。
+文件下载是一种很常见的功能，在 Foundation 层可以使用 NSURLConnection 或 NSURLSession+NSURLSessionDownloadTask 进行实现，这是两种最简单的实现下载功能的方式。如果你熟悉 AFNetworking，你一定会觉得基于用 AFNetworking 来实现下载才是最简单的姿势，因为AFURLSessionManager 类已经封装了完整的下载功能，如果你在一个界面中要下载一个文件，而且这个下载操作和别的界面没有任何关系，我建议你实现下载功能时直接用 AFNetworking，比起 NSURLConnection 和 NSURLSession 的一大堆代理方法，AFNetworking 简洁的不要不要的，比如下面这段代码使用 AFNetworking 进行下载，并实现了完整的进度回调，暂停、继续等操作也是特别方便。
 
-于是，我就基于AFNetworking 3.x实现了一个简单的下载管理工具，支持如下的特性：
+```
+NSString *url = @"http://test.daqing.net/300M.rar";
+NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL URLWithString:url]];
+__weak __typeof__(self) weakSelf = self;
+// 指定目标下载地址
+NSURL *(^destinationBlock)(NSURL *targetPath, NSURLResponse *response) = ^(NSURL *targetPath, NSURLResponse *response) {
+    NSString *fileName = [targetPath lastPathComponent];
+    NSString *destinationPath = [NSTemporaryDirectory() stringByAppendingPathComponent:fileName];
+    return [NSURL fileURLWithPath:destinationPath];
+};
+// 指定进度回调
+void (^progressBlock)(NSProgress *downloadProgress) = ^(NSProgress *downloadProgress) {
+    dispatch_async(dispatch_get_main_queue(), ^{
+        __strong __typeof__(weakSelf) strongSelf = weakSelf;
+        strongSelf.progressView.progress = downloadProgress.fractionCompleted;
+    });
+};
+// 创建下载任务
+self.downloadTask = [self.downloadManager downloadTaskWithRequest:request progress:progressBlock destination:destinationBlock completionHandler:^(NSURLResponse * _Nonnull response, NSURL * _Nullable filePath, NSError * _Nullable error) {
+    if (error) {
+        NSLog(@"下载失败");
+    } else {
+        NSLog(@"下载成功");
+    }
+}];
+// 开始下载
+[self.downloadTask resume];
+```
 
-* 方便的监控每个下载文件的下载进度和下载状态
-* 可以方便的为每个下载文件指定下载位置
-* 指定可同时下载的文件个数
+简单吧？如果要实现更加复杂的下载，比如有一个下载列表然后同时可以下载N个文件的，比如要在多个界面中访问下载任务的，上面的代码就有点“捉襟见肘”了。于是，我就基于 AFNetworking 3 实现了一个简单的下载管理工具 SODownloader，支持如下的特性：
+
+* 支持下载进度和下载状态管理
+* 支持下载列表并可为每个文件分别指定保存位置
+* 支持设置同时下载任务数量
 * 具备常用下载管理方法（下载、暂停、恢复、全部暂停、取消等）
-* 方便的创建多个下载管理类实例
-* 支持后台下载
-* 可指定接收文件的MIME类型，不符合则认为失败
-* 使用简单（原谅我自卖自夸一下）
+* 最简单的代码即可支持后台下载
+* 支持判断下载文件的MIME类型，不符合则认定失败
 
 ## SODownloader 介绍
 
-如果你看完了上面说的这些，还没关闭这篇博客的话，下面我就深入的介绍一下我写的[SODownloader](https://github.com/scfhao/SODownloader)（这就是上面说的下载工具类，是不是很逊？）。
+如果你看完了上面说的这些，还没关闭这篇博客的话，下面我就深入的介绍一下我写的[SODownloader](https://github.com/scfhao/SODownloader)
 
 SODownloader 的核心为 SODownloader 和 SODownloadItem，其中SODownloader 为下载管理类，SODownloadItem 则代表下载项。
 
 ### 创建 SODownloader 对象
 
-创建/获取 SODownloader 对象特别简单，代码如下：
+可以这样创建一个 SODownloader 对象：
 
 ```
 + (instancetype)musicDownloader {
-    return [SODownloader downloaderWithIdentifier:@"music" completeBlock:^(id<SODownloadItem>  _Nonnull item, NSURL * _Nonnull location) {
-        SODebugLog(@"%@ 下载成功！", item);
-        // 这个block每下载成功一个文件时被调用，这个block在后台线程中调用，不建议在这里做更新UI的操作
-        // 你可以在这里对下载成功做特别的处理，例如：
-        // 1. 把下载完成的 item 的信息存入数据库
-        // 2. 把下载完成的文件从 location 位置移动到你想要保存到的文件夹
-        // 3. 其他处理，如解析下载文件等
-    }];
+    static SODownloader *downloader = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        downloader = [[SODownloader alloc]initWithIdentifier:@"music" completeBlock:^(id<SODownloadItem>  _Nonnull item, NSURL * _Nonnull location) {
+            SODebugLog(@"%@ 下载成功！%@", item, location);
+            // 这个block每下载成功一个文件时被调用，这个block在后台线程中调用，不建议在这里做更新UI的操作
+            // 你可以在这里对下载成功做特别的处理，例如：
+            // 1. 把下载完成的 item 的信息存入数据库
+            // 2. 把下载完成的文件从 location 位置移动到你想要保存到的文件夹
+            // 3. 其他处理，如解析下载文件等
+        }];
+    });
+    return downloader;
 }
-
 ```
 
-SODownloader 建议为不同类型的下载列表创建不同的 SODownloader 对象，例如要下载音乐，则 identifier 参数指定为“music”，在一次应用生命周期内，对相同的 identifier 会返回同一个 SODownloader 对象。如果要下载视频，identifier 传“video”即可返回另一个专门用于视频下载的 SODownloader 对象。至于第二个block参数，上面代码注释里应该算是很清楚了。
+建议为不同类型文件的下载创建不同的 SODownloader 对象，例如要下载音乐，创建一个 identifier 为“music”的下载器；如果还要下载视频，在创建一个 identifier 为“video”的另一个 SODownloader 对象。至于第二个block参数，上面代码注释里应该算是很清楚了。
 
 ### SODownloadItem 可下载项
 
-可下载项是指你的应用中要下载的数据类型，例如音乐App中可能用 SOMusic 来代表一首歌曲，这里歌曲就是可下载项。让自己应用中的 model 成为 SODownloader 的可下载项有两种途径：
+可下载项是指你要下载的数据类型，例如音乐App中可能用 SOMusic 来代表一首歌曲，这里歌曲就是可下载项。让自己应用中的 model 成为 SODownloader 的可下载项有两种途径：
 
 1. 继承 SODownloadItem 类，如果你的 model 的直接父类为NSObject，建议选择继承 SODownloadItem 类。
-2. 实现 SODownloadItem 协议，如果你的 model 的需要继承其他父类，就可以选择实现 SODownloadItem 协议，比直接继承 SODownloadItem 稍微麻烦的一点就是需要在你的 model 类的实现中为 `downloadProgress`和`downloadState`属性合成访问器，可以直接写`@synthesize downloadProgress, downloadState;`搞定，如果有特殊需求也可以自己为这两个属性实现 setter 和 getter。
-3. 要成为可下载项，最重要的一点就是在这个 model 类中实现`- (NSURL *)downloadURL;`方法，在这个方法中返回 model 对应的文件的下载地址。
+2. 实现 SODownloadItem 协议，如果你的 model 的需要继承其他父类，就可以选择实现 SODownloadItem 协议，比直接继承 SODownloadItem 稍微麻烦的一点就是需要在你的 model 类的实现中为 `so_downloadProgress`和`so_downloadState`属性合成访问器，可以直接写`@synthesize so_downloadState, so_downloadProgress;`搞定，如果有特殊需求也可以自己为这两个属性实现 setter 和 getter。
+3. 要成为可下载项，最重要的一点就是在这个 model 类中实现`- (NSURL *)so_downloadURL;`方法，在这个方法中返回 model 对应的文件的下载地址。
 
 ### 进行下载
 
@@ -71,19 +102,16 @@ SODownloader 建议为不同类型的下载列表创建不同的 SODownloader �
 /// 取消／删除
 - (void)cancelItem:(id<SODownloadItem>)item;
 - (void)cancenAll;
-
 /// 删除所有已下载
 - (void)removeAllCompletedItems;
-
 ```
 
 ### 监控下载状态和下载进度
 
-SODownloadItem 为下载模型增加了两个属性，downloadState（下载状态）、downloadProgress（下载进度）。这两个属性的值由 SODownloader 管理，不建议在 SODownloader 外部自己设置这两个属性的值，如果非要这么做的话，请使用 SODownloader 提供的这个方法来修改下载状态的值：
+SODownloadItem 为下载模型增加了几个属性，so_downloadState（下载状态）、so_downloadProgress（下载进度），你可以使用`KVO`观察这两个属性或重写这两个属性的 setter 方法来做相应的处理。这两个属性的值由 SODownloader 管理，不建议在 SODownloader 外部自己设置这两个属性的值，如果非要这么做的话，请使用 SODownloader 提供的这个方法来修改下载状态的值：
 
 ```
 - (void)setDownloadState:(SODownloadState)state forItem:(id<SODownloadItem>)item;
-
 ```
 
 ### 通知
@@ -96,7 +124,6 @@ SODownloader 每下载成功一个文件时，会发送 SODownloaderCompleteItem
 
 ```
 videoDownloader.acceptableContentTypes = [[NSSet alloc]initWithObjects:@"video/mpeg4", @"video/avi", nil];
-
 ```
 
 ## 推广
@@ -109,7 +136,7 @@ videoDownloader.acceptableContentTypes = [[NSSet alloc]initWithObjects:@"video/m
 
 * 如果觉得 SODownloader 还缺少什么下载通用的功能，欢迎评论提出。
 * 如果发现 SODownloader 存在 Bug，欢迎在评论提出，或者在[Issue](https://github.com/scfhao/SODownloader/issues)中讨论，或者提交pull request。
-* 如果有可以改进的代码，欢迎提交 pull request。
+* 如果有更好的代码，欢迎提交 pull request。
 * 欢迎各种拍砖！
 * 如果觉得还不错，欢迎 Star！
 
