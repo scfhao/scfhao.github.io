@@ -1,11 +1,9 @@
 ---
 layout: post
-title: "ProGit primary notes"
+title: "《Pro Git》速查笔记"
 date: 2017-02-03 21:14:33 +0800
 categories:
 ---
-
-# 《Pro Git》速查笔记
 
 ## 前言
 
