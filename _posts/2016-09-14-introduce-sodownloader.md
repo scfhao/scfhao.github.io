@@ -118,6 +118,22 @@ SODownloadItem 为下载模型增加了几个属性，so_downloadState（下载�
 
 SODownloader 每下载成功一个文件时，会发送 SODownloaderCompleteItemNotification 通知，当你收到这个通知时，可以做刷新界面等操作。这个通知的 object 为 SODownloader 对象，这样就可以为指定的 SODownloader 对象注册这个通知，也可以在通知对象的 userInfo 字典中通过 SODownloaderCompleteDownloadItemKey 拿到当前下载成功的 SODownloadItem。
 
+### 支持后台下载
+
+在 AppDelegate 类中实现`application:handleEventsForBackgroundURLSession:completionHandler:`方法，这个方法的实现位置没有限制，可以你的 AppDelegation.m 中实现，也可以在 AppDelegate 类的 category 中实现，例如写在 AppDelegate+SODownloader.m 中(但不要同时在多个地方实现这个方法，否则只有一处会生效)：
+
+```
+- (void)application:(UIApplication *)application handleEventsForBackgroundURLSession:(NSString *)identifier completionHandler:(void (^)())completionHandler {
+	// 根据 identifier 判断后台下载会话是否属于某个 SODownloader 对象，如果属于则交由该 SODownloader 对象处理。
+    if ([identifier isEqualToString:@"music"]) {
+        SODownloader *downloader = [SODownloader musicDownloader];
+        [downloader setDidFinishEventsForBackgroundURLSessionBlock:^(NSURLSession * _Nonnull session) {
+            completionHandler();
+        }];
+    }
+}
+```
+
 ### MIME 类型检测
 
 如果服务器支持 MIME-type 的话，可以设置 SODownloader 对象的 acceptableContentTypes 属性来设置接收的文件类型。例如，你创建了一个 SODownloader 对象 videoDownloader，用它来下载你的应用中用到的视频文件，假设视频格式为 mp4（对应的 MIME-type 为“video/mpeg4”） 或 avi（对应的 MIME-type 为“video/avi”），这时你就可以通过下面的代码来为 videoDownloader 指定接收数据的类型了，当服务器发生错误，返回一个非期望的数据（例如服务器上没有对应的视频文件，所以服务器返回了一个404 html页面，这时的 MIME-type 可能为“text/html”），SODownloader就可以自动认为这个视频文件下载失败了：
@@ -125,6 +141,10 @@ SODownloader 每下载成功一个文件时，会发送 SODownloaderCompleteItem
 ```
 videoDownloader.acceptableContentTypes = [[NSSet alloc]initWithObjects:@"video/mpeg4", @"video/avi", nil];
 ```
+
+### 对 AFNetworking 2.x 的支持
+
+如果项目中使用的 AFNetworking 的版本号为 2.x 且不能轻易升级到 AFNetworking 3，可以在 SODownloader 项目的`baseOnAF2`分支找到支持 AFNetworking 2.x 的 SODownloader 版本。
 
 ## 推广
 
@@ -139,4 +159,3 @@ videoDownloader.acceptableContentTypes = [[NSSet alloc]initWithObjects:@"video/m
 * 如果有更好的代码，欢迎提交 pull request。
 * 欢迎各种拍砖！
 * 如果觉得还不错，欢迎 Star！
-
