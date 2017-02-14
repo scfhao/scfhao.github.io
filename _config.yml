@@ -6,14 +6,16 @@
 # 'jekyll serve'. If you change this file, please restart the server process.
 
 # Site settings
-title: scfhao's coding blog
+title: scfhao 的个人博客
 email: scfhao@gmail.com
+mailto: "邮件联系"
 description: > # this means to ignore newlines until "baseurl:"
   scfhao 博客
 baseurl: "/blog" # the subpath of your site, e.g. /blog
 url: "https://scfhao.coding.me/blog" # the base hostname & protocol for your site
 # twitter_username: scfhao
-github_username:  scfhao
+github_username: scfhao
+weibo_username: scfhao
 exclude: ["Rakefile"]
 
 # Build settings
