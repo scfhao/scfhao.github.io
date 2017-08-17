@@ -22,7 +22,7 @@ permalink: /about/
 
 ## 链接
 
-我从2014年开始就一直使用[GreenVPN](http://gjsq.me/2119848) 。
+~~我从2014年开始就一直使用[GreenVPN](http://gjsq.me/2119848)~~ GreenVPN 已于公元2017年7月1日正式关闭。
 
 ## 联系本人
 
