@@ -18,5 +18,13 @@ github_username: scfhao
 weibo_username: scfhao
 exclude: ["Rakefile"]
 
+# Coding Comments Settings
+coding_comments:
+	user: scfhao
+	project: blog
+	oauth:
+		client_id: f8aa44aed6291c6cdcd9696391fe815e
+		client_secret: f431664e0eedc0b7b2872fc7fc0942c07a7e6dd9
+
 # Build settings
 markdown: kramdown

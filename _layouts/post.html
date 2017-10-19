@@ -13,6 +13,14 @@ comments: true
     {{ content }}
   </div>
 
+  {% if site.coding_comments.user %}
+  <!-- coding_comments 评论框 start -->
+  <div class="comment">
+    <div id="coding_comments_thread" class="coding_comments-thread"></div>
+  </div>
+  <!-- coding_comments 评论框 end -->
+  {% endif %}
+
 </article>
 
-{% include disqus.html %}
+{% include coding_comments.html %}
