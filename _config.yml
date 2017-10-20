@@ -19,7 +19,7 @@ weibo_username: scfhao
 exclude: ["Rakefile"]
 
 # Coding Comments Settings
-coding_comments:
+coding_comments: 
 	user: 'scfhao'
 	project: 'blog'
 	oauth:
