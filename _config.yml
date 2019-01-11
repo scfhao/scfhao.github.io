@@ -11,20 +11,11 @@ email: scfhao@gmail.com
 mailto: "邮件联系"
 description: > # this means to ignore newlines until "baseurl:"
   scfhao 博客
-baseurl: "/blog" # the subpath of your site, e.g. /blog
-url: "https://scfhao.coding.me/blog" # the base hostname & protocol for your site
+baseurl: "" # the subpath of your site, e.g. /blog
+url: "https://blog.scfhao.tk/" # the base hostname & protocol for your site
 # twitter_username: scfhao
 github_username: scfhao
 weibo_username: scfhao
 exclude: ["Rakefile"]
-
-# Coding Comments Settings
-coding_comments: 
-  user: 'scfhao'
-  project: 'blog'
-  oauth: 
-    client_id: 'f8aa44aed6291c6cdcd9696391fe815e'
-    client_secret: 'f431664e0eedc0b7b2872fc7fc0942c07a7e6dd9'
-
 # Build settings
 markdown: kramdown
