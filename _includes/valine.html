@@ -1,0 +1,10 @@
+{% if site.valine.AppID %}
+<div id="vcomments"></div>
+<script>
+    new Valine({
+        el: '#vcomments',
+        appId: '{{site.valine.AppID}}',
+        appKey: '{{site.valine.AppKey}}'
+    });
+</script>
+{% endif %}
