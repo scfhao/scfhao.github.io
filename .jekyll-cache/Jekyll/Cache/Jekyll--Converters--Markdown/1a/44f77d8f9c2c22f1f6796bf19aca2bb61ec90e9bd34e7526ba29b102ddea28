@@ -1,0 +1,2 @@
+I"N<p>在 iOS 开发中，对服务器提供的API进行调试是很常见的场景，每个人都不会陌生。有的人可能是通过一些浏览器插件（比如post man），有的人可能是拼装好URL在浏览器里访问，还有的人可能是使用<code class="highlighter-rouge">curl</code>这个很实用的命令。</p>
+:ET

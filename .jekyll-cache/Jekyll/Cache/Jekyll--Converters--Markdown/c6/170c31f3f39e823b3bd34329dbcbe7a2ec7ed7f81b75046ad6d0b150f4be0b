@@ -1,0 +1,249 @@
+I"j2<h1 id="通过xcode在命令行进行编译的常见问题">通过Xcode在命令行进行编译的常见问题</h1>
+
+<p>原文是：Technical Note TN2339 Building from the Command Line with Xcode FAQ</p>
+
+<h2 id="命令行工具包是什么">命令行工具包是什么？</h2>
+
+<p>命令行工具包是一个轻小的、可以与Xcode分开下载的、允许你在OS X上进行命令行开发的工具包。它由两部分组成：OS X SDK和类似Clang等安装在/usr/bin下的命令行工具。</p>
+
+<h2 id="在os-x-109上的xcode上不再支持下载命令行工具了那该如何下载他们呢">在OS X 10.9上的Xcode上不再支持下载命令行工具了，那该如何下载他们呢？</h2>
+
+<p>在OS X 10.9上，Xcode首选项的下载面板中不再支持命令行工具的下载了。可以用如下的几个方法在你的系统中安装命令行工具：</p>
+
+<ul>
+  <li>
+    <p>使用Xcode</p>
+
+    <p>如果你的机器上安装了Xcode，那就没必要再安装命令行工具了，Xcode里面已经捆绑了所有的命令行工具。OS X 10.9包含了可执行文件的垫片（shims）和包装（warp）。垫片安装于/usr/bin，可以转换一些/usr/bin下的工具到对应的Xcode中自带的工具。xcrun就是这样的一个垫片，它可以允许你在命令行中找到或者运行任何Xcode中包含的工具。</p>
+
+    <p>在终端中运行dwarfdump</p>
+
+    <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code> $ xcrun dwarfdump —uuid MySample.app/MySample
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>使用终端应用</p>
+
+    <p>你可以通过运行<code class="highlighter-rouge">xcode-select —-install</code>命令或尝试使用别的一个命令（如git）来安装。</p>
+
+    <p>OS X自带<code class="highlighter-rouge">xcode-selecta</code>，这是一个安装于<code class="highlighter-rouge">/usr/bin</code>中的命令行工具。它允许你管理Xcode或其他的BSD开发工具的开发者路径。</p>
+
+    <p>当你尝试使用这几个命令时，OS X会弹出一个对话框，选择Install来在你的系统中的<code class="highlighter-rouge">/Library/Developer/CommandLineTools</code>初始化命令行工具。</p>
+  </li>
+  <li>
+    <p>使用开发者网站的“Download for Apple Developers”页面</p>
+
+    <p>可以在<a href="https://developer.apple.com/downloads/">Download for Apple Developers</a>网页下载命令行工具。登录上你的Apple ID，然后下载命令行工具包。</p>
+  </li>
+</ul>
+
+<h2 id="如果卸载我的命令行工具">如果卸载我的命令行工具？</h2>
+
+<ul>
+  <li>Xcode包括所有的命令行工具。如果你的系统中安装了Xcode，删除它就可以了。</li>
+  <li>如果你的工具是单独下载的，它们会在你的系统的/Library/Developer/CommandLineTools。删除这个文件夹来卸载它们。</li>
+</ul>
+
+<h2 id="电脑上安装了多个版本的xcode当前的命令行工具使用的是哪一个呢">电脑上安装了多个版本的Xcode，当前的命令行工具使用的是哪一个呢？</h2>
+
+<p>可以在终端中运行下面的命令来确定命令行使用的Xcode的版本：</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ xcode-select —-print-path
+</code></pre></div></div>
+
+<h2 id="如何为命令行工具设置默认使用的xcode版本">如何为命令行工具设置默认使用的Xcode版本？</h2>
+
+<p>在终端运行如下的命令：</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ sudo xcode-select -switch &lt;path/to/&gt;Xcode.app
+</code></pre></div></div>
+
+<p>将&lt;path/to/&gt;替换为你想要使用的Xcode.app包的路径。</p>
+
+<h2 id="如何在命令行中编译我的工程">如何在命令行中编译我的工程？</h2>
+
+<p>xcodebuild是一个命令行工具允许你从命令行对你的Xcode工程或工作空间执行编译，查询，分析，测试和打包等操作。它可以操作一个或多个你工程或工作空间中包含的target或scheme。xcodebuild为这些操作提供了一些选项，参照man page。xcodebuild命令的输出保存在你的Xcode的Locations首选项面板中设置的位置。</p>
+
+<p>下面有几个xcodebuild命令的使用。使用下面命令时确保先将路径切换到包含你的project或workspace文件的路径。</p>
+
+<ul>
+  <li>
+    <p>在终端运行如下的命令，列出工程中所有的target，编译配置和scheme。</p>
+
+    <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  $ xcodebuild -list -project &lt;your_project_name&gt;.xcodeproj
+</code></pre></div>    </div>
+
+    <p>其中的 <code class="highlighter-rouge">&lt;your_project_name&gt;</code> 是你的工程的名字。</p>
+  </li>
+  <li>
+    <p>编译工程中的一个scheme，在终端运行下面的命令：</p>
+
+    <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  $ xcodebuild -scheme &lt;your_scheme_name&gt; build
+</code></pre></div>    </div>
+
+    <p>其中 <code class="highlighter-rouge">&lt;your_scheme_name&gt;</code> 和 <code class="highlighter-rouge">build</code> 分别对应要编译的scheme的名称和要在该scheme上要执行的操作。</p>
+
+    <p>注意：xcodebuild 支持多个构建操作如 build、analyze 和 archive 可以在你的target或scheme上执行，如果没有指定操作，默认为build。</p>
+  </li>
+  <li>
+    <p>使用一个配置文件来编译你的target，在终端运行如下命令：</p>
+  </li>
+</ul>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ xcodebuild -target &lt;your_target_name&gt; -xcconfig &lt;your_configuration_file&gt;.xcconfig
+</code></pre></div></div>
+
+<p>其中 <code class="highlighter-rouge">&lt;your_target_name&gt;</code> 和 <code class="highlighter-rouge">&lt;your_configuration_file&gt;</code> 分别对应你要编译的target的名字和你的配置文件的名字。</p>
+
+<ul>
+  <li>
+    <p>要修改xcodebuild命令的输出地址，使用SYMROOT（编译结果路径）和DSTROOT（可安装产品路径）编译设置分别指定了你的debug products和.dSYM文件和一个发布位置。参见Xcode Build Setting Reference查找更多信息。</p>
+
+    <p>两个示例：</p>
+  </li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-powershell" data-lang="powershell"><span class="nf">//</span><span class="w"> </span><span class="err">为</span><span class="nx">MyiOSApp</span><span class="err">的</span><span class="nx">debug</span><span class="err">版本设置位置</span><span class="w">
+</span><span class="err">$</span><span class="w"> </span><span class="nf">xcodebuild</span><span class="w"> </span><span class="nt">-scheme</span><span class="w"> </span><span class="nx">MyiOSApp</span><span class="w"> </span><span class="nx">SYMROOT</span><span class="o">=</span><span class="s2">"/Users/username/DebugLocation"</span><span class="w">
+</span><span class="nf">//</span><span class="w"> </span><span class="err">为</span><span class="nx">MyiOSApp</span><span class="err">设置</span><span class="nx">archive</span><span class="err">位置</span><span class="w">
+</span><span class="err">$</span><span class="w"> </span><span class="nf">xcodebuild</span><span class="w"> </span><span class="nt">-scheme</span><span class="w"> </span><span class="nx">MyiOSApp</span><span class="w"> </span><span class="nx">DSTROOT</span><span class="o">=</span><span class="s2">"/Users/username/ReleaseLocation"</span><span class="w"> </span><span class="nf">archive</span></code></pre></figure>
+
+<h2 id="应用有多套编译配置如何为xcodebuild设置默认的编译配置">应用有多套编译配置，如何为xcodebuild设置默认的编译配置？</h2>
+
+<p>Xcode的工程的info面板中的Configuration区有一个弹出菜单，在这里可以设置使用xcodebuild编译一个target时的默认编译配置。</p>
+
+<h2 id="如何使用命令行运行-os-x-和-ios-的单元测试">如何使用命令行运行 OS X 和 iOS 的单元测试</h2>
+
+<p>要在命令行中运行单元测试，在终端中执行如下的命令：</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>xcodebuild test -scheme &lt;your_scheme_name&gt; -destination destinationspecifier
+
+</code></pre></div></div>
+
+<p>xcodebuild 使用 test 编译操作来运行单元测试。这个编译操作要求指定一个 scheme 和 destination。-destination 选项允许你为你的单元测试指定一个目的地。参数 -destinationspecifier 描述了使用真机、模拟器或Mac来作为目的地。它由一些逗号分隔的 key=value 对的集合组成，根据要用真机、模拟器或Mac。</p>
+
+<p>更多关于 scheme 和 destination 相关的信息见 Xcode Scheme 和 Choose a Destination to Run Your App。</p>
+
+<ul>
+  <li>对于 OS X 应用，-destinationspecifier 支持平台和构建key见下表。执行 OS X中的单元测试时，两个key都是必需的。</li>
+</ul>
+
+<table>
+  <thead>
+    <tr>
+      <th>key</th>
+      <th>Description</th>
+      <th>Value</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>platform</td>
+      <td>你的单元测试支持的目标平台</td>
+      <td>OS X</td>
+    </tr>
+    <tr>
+      <td>arch</td>
+      <td>运行单元测试使用的构建平台</td>
+      <td>i386 或 x86_64</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>实例：测试 MyMacApp scheme 在64位 OS X上</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>xcodebuild test -scheme MyMacApp -destination 'platform=OS X, arch=x86_64'
+</code></pre></div></div>
+
+<ul>
+  <li>对于iOS 应用，-destinationspecifier支持platform、name和id等关键字如下表：</li>
+</ul>
+
+<table>
+  <thead>
+    <tr>
+      <th>Key</th>
+      <th>Description</th>
+      <th>Value</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>platform</td>
+      <td>单元测试支持的目标平台</td>
+      <td>iOS</td>
+    </tr>
+    <tr>
+      <td>name</td>
+      <td>单元测试要用的设备的全名</td>
+      <td>设备在Xcode中显示的名称</td>
+    </tr>
+    <tr>
+      <td>id</td>
+      <td>单元测试使用的设备的标识符</td>
+      <td> </td>
+    </tr>
+  </tbody>
+</table>
+
+<p>name 和 id 关键字二选一和platform构成必要的关键字：
+示例：通过给定的 id 在设备上运行 MyiOSApp scheme 的单元测试</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>xcodebuild test -scheme MyiOSApp -destination 'platform=iOS,id=998058a1c30d845d0dcec81cd6b901650a0d701c'
+</code></pre></div></div>
+
+<p>示例：在一台iPod touch上测试MyiOSApp Scheme</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>xcodebuild test -scheme MyiOSApp -destination 'platform=iOS,name=iPod touch'
+</code></pre></div></div>
+
+<ul>
+  <li>对于iOS模拟器应用，-destinationspecifier支持platform、name和 OS 等关键字如下：</li>
+</ul>
+
+<table>
+  <thead>
+    <tr>
+      <th>Key</th>
+      <th>Description</th>
+      <th>Value</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>platform</td>
+      <td>单元测试支持的目标平台</td>
+      <td>iOS Simulator</td>
+    </tr>
+    <tr>
+      <td>name</td>
+      <td>单元测试运行的目标iOS模拟器的全称</td>
+      <td>iPhone Retina (3.5-inch), iPhone Retina (4-inch), iPhone Retina (4-inch 64-bit), iPad, iPad Retina, or iPad Retina (64-bit.</td>
+    </tr>
+    <tr>
+      <td>OS</td>
+      <td>iOS模拟器的版本如 7.1</td>
+      <td>支持的最新的iOS版本</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>platform和name是必选的关键字，OS可选。</p>
+
+<p>示例：在iPad模拟器上运行MyiOSApp scheme的单元测试</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>xcodebuild test -scheme MyiOSApp -destination 'platform=iOS Simulator,name=iPad
+</code></pre></div></div>
+
+<p>示例：在iOS 7.1 Retina (4-inch 64-bit)模拟器运行MyiOSApp scheme的单元测试</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>xcodebuild test -scheme MyiOSApp -destination 'platform=iOS Simulator,name=iPhone Retina (4-inch 64-bit),OS=7.1'
+</code></pre></div></div>
+
+<p>-destination选项也允许在多个目标平台上运行同一个单元测试。只需要在xcodebuild命令后面多加几次就可以了，如下：</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>xcodebuild test -scheme MyiOSApp -destination 'platform=iOS Simulator,name=iPhone Retina(4-inch 64-bit),OS=7.1' -destination 'platform=iOS,name=iPod touch'
+</code></pre></div></div>
+
+<p>注意，xcodebuild会按照循序一个一个运行单元测试，上面的例子中先在模拟器上测试，然后在iPod touch上测试。</p>
+:ET

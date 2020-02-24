@@ -1,0 +1,674 @@
+I"��<h2 id="前言">前言</h2>
+
+<p>Git是程序员的好伙伴，不懂 Git 一定会被同行鄙视的。更多关于Git的内容可以在<a href="https://git-scm.com">Git官网</a>看看，快速了解Git可以试一下<a href="https://try.github.io/levels/1/challenges/1">Code School的十五分钟教程“Try Git“</a>，系统地了解Git可以看看开源的 Git 电子书<a href="https://git-scm.com/book/en/v2">《Pro Git》</a>，这本电子书很不错，提供了简体中文版，你可以免费下载pdf、epub、mobi版本，或者直接在网页上阅读。</p>
+
+<p>这里是我阅读《Pro Git》前三章时做的笔记。惭愧的是，使用 Git 进行版本管理的时间已经满两年了，才开始系统的看这本书。嗯，我刚开始使用 Git 时，也是以此书入门的，只可惜只学会了最简单的几个命令就丢开了。所以，在这里我总结了一些我觉得我可能并没有真正理解或者我可能忘记的东西，所以这里的内容可能“不全”，所以请不要把本文当作教程，去读《Pro Git》吧，相信你会有更大的收获！</p>
+
+<h2 id="第一章">第一章</h2>
+
+<h3 id="安装">安装</h3>
+
+<h4 id="在-linux-上安装">在 Linux 上安装</h4>
+
+<ul>
+  <li>如果基础软件包管理工具是 Fedora，使用 yum 安装：</li>
+</ul>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ sudo yum install git
+</code></pre></div></div>
+
+<ul>
+  <li>如果是基于 Debian 的发行版，使用 apt-get:</li>
+</ul>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ sudo apt-get install git
+</code></pre></div></div>
+
+<ul>
+  <li>访问<a href="http://git-scm.com/download/linux">Git 官网</a></li>
+</ul>
+
+<h4 id="在-mac-上安装">在 Mac 上安装</h4>
+
+<ul>
+  <li>安装 Xcode Command Line Tools。</li>
+  <li>或者直接使用git命令，会提示安装 Xcode Command Line Tools。（要不要这么贴心）</li>
+  <li>或者从<a href="http://git-scm.com/download/mac">官网</a>下载安装程序。</li>
+  <li>或者从<a href="http://mac.github.com">GitHub</a>安装 GitHub for Mac。</li>
+</ul>
+
+<h4 id="在-windows-上安装">在 Windows 上安装</h4>
+
+<ul>
+  <li>或者从<a href="http://git-scm.com/download/win">官网</a>下载安装程序。</li>
+  <li>或者从<a href="http://windows.github.com">GitHub</a>下载 GitHub for Windows。</li>
+</ul>
+
+<h3 id="配置">配置</h3>
+
+<p>配置分三个级别：</p>
+
+<ol>
+  <li>系统级，配置文件位于：<code class="highlighter-rouge">/etc/gitconfig</code>，使用<code class="highlighter-rouge">git config --system</code>配置此文件。</li>
+  <li>用户级，配置文件位于：<code class="highlighter-rouge">~/.gitconfig</code>或<code class="highlighter-rouge">~/.config/git/config</code>，使用<code class="highlighter-rouge">git config --global</code>配置此文件。</li>
+  <li>仓库级，配置文件位于：<code class="highlighter-rouge">repo path/.git/config</code>，在<code class="highlighter-rouge">repo path</code>下直接使用不带选项的<code class="highlighter-rouge">git config</code>配置此文件。</li>
+</ol>
+
+<p>在 Windows 系统中，Git 会查找 $HOME 目录下（一般情况下是 C:\Users$USER）的 .gitconfig 文件。 Git 同样也会寻找 /etc/gitconfig 文件，但只限于 MSys 的根目录下，即安装 Git 时所选的目标位置。</p>
+
+<p>示例：</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ git config --global user.name "John Doe"
+$ git config --global user.email johndoe@example.com
+$ git config --global core.editor emacs
+</code></pre></div></div>
+
+<h4 id="查看配置信息">查看配置信息</h4>
+
+<ol>
+  <li>可以使用<code class="highlighter-rouge">git config --list</code>命令列出所有 Git 当时能找到的配置。</li>
+  <li>可以使用<code class="highlighter-rouge">git config &lt;key&gt;</code>命令查看 Git 某一项的配置。</li>
+</ol>
+
+<h4 id="配置账号">配置账号</h4>
+
+<p>如果不想每一次推送时都输入用户名与密码，你可以设置一个“credential cache”。最简单的方式就是将其保存在内存中几分钟，更多关于不同验证缓存的可用选项，查看凭证存储章节：</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ git config --global credential.helper cache
+</code></pre></div></div>
+
+<h3 id="帮助信息">帮助信息</h3>
+
+<p>有三种查看 Git 命令使用手册的方法：</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ git help &lt;verb&gt;
+$ git &lt;verb&gt; --help
+$ man git-&lt;verb&gt;
+</code></pre></div></div>
+
+<h2 id="第二章">第二章</h2>
+
+<h3 id="基础操作">基础操作</h3>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>git init
+<span class="c"># git clone -o remote-name</span>
+<span class="nv">$ </span>git clone
+<span class="nv">$ </span>git add
+<span class="nv">$ </span>git commit
+<span class="nv">$ </span>git pull
+<span class="c"># git push origin localbranchname:remotebranchname</span>
+<span class="nv">$ </span>git push
+</code></pre></div></div>
+
+<h3 id="状态简览">状态简览。</h3>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ git status -s
+
+M README
+MM Rakefile
+A  lib/git.rb
+M  lib/simplegit.rb
+?? LICENSE.txt
+</code></pre></div></div>
+
+<p>这里的<code class="highlighter-rouge">-s</code>(也可以使用<code class="highlighter-rouge">--short</code>)可以使<code class="highlighter-rouge">git status</code>命令进行一个比较简洁输出，比直接用<code class="highlighter-rouge">git status</code>爽多了，你一定会喜欢。</p>
+
+<p>新添加的未跟踪文件前面有 ?? 标记，新添加到暂存区中的文件前面有 A 标记，修改过的文件前面有 M 标记。 你可能注意到了 M 有两个可以出现的位置，出现在右边的 M 表示该文件被修改了但是还没放入暂存区，出现在靠左边的 M 表示该文件被修改了并放入了暂存区。</p>
+
+<h3 id="忽略文件">忽略文件</h3>
+
+<p>可以在<code class="highlighter-rouge">.gitignore</code>文件中指定不希望被 Git 纳入版本控制的文件，要养成一开始就设置好<code class="highlighter-rouge">.gitignore</code>文件的好习惯。推荐一个可以自动生成该文件的<a href="https://www.gitignore.io">网址</a>，这个网址配合 Linux 的<code class="highlighter-rouge">curl</code>命令使用效果更佳哦！</p>
+
+<p>文件<code class="highlighter-rouge">.gitignore</code>的格式规范如下：</p>
+
+<ul>
+  <li>所有空行或者以<code class="highlighter-rouge">#</code>开头的行都会被 Git 忽略。</li>
+  <li>可以使用标准的 glob 模式匹配。</li>
+  <li>匹配模式可以以<code class="highlighter-rouge">/</code>开头防止递归。</li>
+  <li>匹配模式可以以<code class="highlighter-rouge">/</code>结尾指定目录。</li>
+  <li>要忽略指定模式以外的文件或目录，可以在模式前加上惊叹号<code class="highlighter-rouge">!</code>取反。</li>
+</ul>
+
+<p>所谓的 glob 模式是指 shell 所使用的简化了的正则表达式。 星号（<em>）匹配零个或多个任意字符；[abc] 匹配任何一个列在方括号中的字符（这个例子要么匹配一个 a，要么匹配一个 b，要么匹配一个 c）；问号（?）只匹配一个任意字符；如果在方括号中使用短划线分隔两个字符，表示所有在这两个字符范围内的都可以匹配（比如 [0-9] 表示匹配所有 0 到 9 的数字）。 使用两个星号（</em>) 表示匹配任意中间目录，比如a/**/z 可以匹配 a/z, a/b/z 或 a/b/c/z等。</p>
+
+<p>看一个 .gitignore 文件的例子：</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code># 不跟踪 .a 文件
+*.a
+
+# 跟踪 lib.a，虽然之前已经设置忽略 .a 文件
+!lib.a
+
+# 只忽略当前目录下的 TODO 文件，但不忽略子目录下的 TODO 文件
+/TODO
+
+# 忽略 build/ 目录下的所有文件
+build/
+
+# 忽略 doc/notes.txt，但不会忽略 doc/server/arch.txt
+doc/*.txt
+
+# 忽略 doc/ 目录下所有的 .pdf 文件
+doc/**/*.pdf
+</code></pre></div></div>
+
+<blockquote>
+  <p>github 有一个十分详细的针对数十种项目及语言的 .gitignore 文件列表，你可以在 <a href="https://github.com/github/gitignore">链接</a> 找到它。</p>
+</blockquote>
+
+<h3 id="查看修改">查看修改</h3>
+
+<p>不加参数的<code class="highlighter-rouge">git diff</code>命令比较的是工作目录中当前文件和暂存区域快照之间的差异，也就是修改之后还没有暂存起来的变化内容。</p>
+
+<p>若要查看已暂存的将要添加到下次提交里的内容，可以使用<code class="highlighter-rouge">git diff --cached</code>命令。(Git 1.6.1 及更高版本还允许使用<code class="highlighter-rouge">git diff --staged</code>，效果是相同的)</p>
+
+<p>可以使用<code class="highlighter-rouge">git difftool</code>命令来用 Araxis、emerge 或 vimdiff 等软件输出 diff 分析结果。使用<code class="highlighter-rouge">git difftool --tool-help</code>命令来看你的系统支持哪些 Git Diff 插件。</p>
+
+<h3 id="移除文件">移除文件</h3>
+
+<p>使用<code class="highlighter-rouge">git rm</code>命令从 Git 中移除某个文件，如果删除之前修改过并且已经放到暂存区域的话，则必须要用强制删除选项<code class="highlighter-rouge">-f</code>。</p>
+
+<p>如果你想让文件保留在磁盘，但是并不想让 Git 继续跟踪。当你忘记添加 .gitignore 文件，不小心把一个很大的日志文件或一堆 .a 这样的编译生成文件添加到暂存区时，这一做法尤其有用。为达到这一目的，使用<code class="highlighter-rouge">--cached</code>选项。</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ git rm log/\*.log
+
+# 注意到星号 * 之前的反斜杠 \，因为 Git 有它自己的文件模式扩展匹配方式，所以我们不用 shell 来帮忙展开。此命令删除 log/ 目录下扩展名为 .log 的所有文件。
+
+$ git rm \*~
+
+# 该命令杀出以`~`结尾的所有文件。
+</code></pre></div></div>
+
+<h3 id="移动文件">移动文件</h3>
+
+<p>不像其他的 VCS 系统，Git 并不显式跟踪文件移动操作。如果在 Git 中重命名了某个文件，仓库中存储的元数据并不会体现出这是一次改名操作。要在 Git 中对文件改名，可以这么做：</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ git mv file_from file_to
+</code></pre></div></div>
+
+<p>它会恰如预期般正常工作。运行<code class="highlighter-rouge">git mv</code>就相当于运行了下面三条命了：</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ mv README.md README
+$ git rm README.md
+$ git add README
+</code></pre></div></div>
+
+<p>如此分开操作，Git 也会意识到这是一次改名。</p>
+
+<h3 id="查看提交历史">查看提交历史</h3>
+
+<p>默认不用任何参数的话，<code class="highlighter-rouge">git log</code>会按提交时间列出所有的更新，最近的更新排在最上面。这个命令列出每个提交的 SHA-1 校验和、作者的名字和电子邮件地址、提交时间以及提交说明。</p>
+
+<p>一个常用的选项是 <code class="highlighter-rouge">-P</code>，用来显示每次提交的内容差异。你也可以加上<code class="highlighter-rouge">-2</code>来仅显示最近两次提交。该选项除了显示基本信息之外，还在附带了每次 commit 的变化。用于代码审查非常有用。</p>
+
+<p>如果你想看到每次提交的简略的统计信息，你可以使用<code class="highlighter-rouge">--stat</code>选项。这个选项在每次提交的下面列出所有被修改过的文件、有多少文件被修改了以及被修改过的文件的哪些行被移除或是增加了。</p>
+
+<p>另外一个常用的选项是<code class="highlighter-rouge">--pretty</code>。这个选项可以指定使用不同于默认的格式的方式展示提交历史。这个选项有一些内建的子选项供你使用。比如使用<code class="highlighter-rouge">oneline</code>将每个提交放在一行显示，查看的提交数据很大时非常有用。另外还有<code class="highlighter-rouge">short</code>、<code class="highlighter-rouge">full</code>和<code class="highlighter-rouge">fuller</code>可以用，展示的信息多少有些不同，如：</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ git log --pretty=oneline
+</code></pre></div></div>
+
+<p>但最有意思的是<code class="highlighter-rouge">format</code>，可以定制要显示的记录格式。</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ git log --pretty=format:"%h - %an, %ar : %s"
+</code></pre></div></div>
+
+<p>表 2-1.<code class="highlighter-rouge">git log --pretty=format</code>常用格式</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>选项</th>
+      <th>说明</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>%H</td>
+      <td>提交对象（commit）的完整哈希字串</td>
+    </tr>
+    <tr>
+      <td>%h</td>
+      <td>提交对象的简短哈希字串</td>
+    </tr>
+    <tr>
+      <td>%T</td>
+      <td>数对象（tree）的完整哈希字串</td>
+    </tr>
+    <tr>
+      <td>%t</td>
+      <td>树对象的简短哈希字串</td>
+    </tr>
+    <tr>
+      <td>%P</td>
+      <td>父对象（parent）的完整哈希字串</td>
+    </tr>
+    <tr>
+      <td>%p</td>
+      <td>父对象的简短哈希字串</td>
+    </tr>
+    <tr>
+      <td>%an</td>
+      <td>作者（author）的名字</td>
+    </tr>
+    <tr>
+      <td>%ae</td>
+      <td>作者的电子邮件地址</td>
+    </tr>
+    <tr>
+      <td>%ad</td>
+      <td>作者修订日期（可以用<code class="highlighter-rouge">--date=</code>选项定制格式</td>
+    </tr>
+    <tr>
+      <td>%ar</td>
+      <td>作者修订日期，按多久以前的方式显示</td>
+    </tr>
+    <tr>
+      <td>%cn</td>
+      <td>提交者（committer）的名字</td>
+    </tr>
+    <tr>
+      <td>%ce</td>
+      <td>提交者的电子邮件地址</td>
+    </tr>
+    <tr>
+      <td>%cd</td>
+      <td>提交日期</td>
+    </tr>
+    <tr>
+      <td>%cr</td>
+      <td>提交日期，按多久以前的方式显示</td>
+    </tr>
+    <tr>
+      <td>%s</td>
+      <td>提交说明</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>当<code class="highlighter-rouge">oneline</code>或<code class="highlighter-rouge">format</code>与另一个 log 选项<code class="highlighter-rouge">--graph</code>结合使用时尤其有用。这个选项添加了一些 ASCII 字符串来形象地展示你的分支、合并历史：</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ git log --pretty=format:"%h %s" --graph
+</code></pre></div></div>
+
+<p>表 2-2.<code class="highlighter-rouge">git log</code>的常用选项</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>选项</th>
+      <th>说明</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>-p</td>
+      <td>按补丁格式显示每个更新之间的差异</td>
+    </tr>
+    <tr>
+      <td>–stat</td>
+      <td>显示每次更新的文件修改统计信息</td>
+    </tr>
+    <tr>
+      <td>–shortstat</td>
+      <td>只显示 –stat 中最后的行数修改添加移除统计</td>
+    </tr>
+    <tr>
+      <td>–name-only</td>
+      <td>仅在提交信息后显示已修改的文件清单</td>
+    </tr>
+    <tr>
+      <td>–name-status</td>
+      <td>显示新增、修改、删除的文件清单</td>
+    </tr>
+    <tr>
+      <td>–abbrev-commit</td>
+      <td>仅显示 SHA-1 的前几个字符，而非所有的 40 个字符</td>
+    </tr>
+    <tr>
+      <td>–relative-date</td>
+      <td>使用较短的相对时间显示（比如：“2 weeks ago”）</td>
+    </tr>
+    <tr>
+      <td>–graph</td>
+      <td>显示 ASCII 图形表示的分支合并历史</td>
+    </tr>
+    <tr>
+      <td>–pretty</td>
+      <td>使用其他格式显示历史提交信息。可用的选项包括 oneline、short、full、fuller和format（后跟指定格式）。</td>
+    </tr>
+  </tbody>
+</table>
+
+<h4 id="限制输出长度">限制输出长度</h4>
+
+<p>git log 还有许多非常实用的限制输出长度的选项，也就是只输出部分提交信息。</p>
+
+<p><code class="highlighter-rouge">-&lt;n&gt;</code>选项，其中的 n 可以是任何整数，表示仅显示最近的若干条提交。不过实践中我们是不太用这个选项的，Git 在输出所有提交时会自动调用分页程序，所以你一次只会看到一页的内容。</p>
+
+<p>另外还有按照时间作限制的选项，比如<code class="highlighter-rouge">--since</code>和<code class="highlighter-rouge">--until</code>也很有用。例如，下面的命令列出所有最近两周内的提交：</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ git log --since=2.weeks
+</code></pre></div></div>
+
+<p>这个命令可以在多种格式下工作，比如说具体的某一天”2008-01-15”，或者是相对地多久以前”2 years 1 day 3 minutes ago”。</p>
+
+<p>还可以给出若干搜索条件，列出符合的提交。用<code class="highlighter-rouge">--author</code>选项显示指定作者的提交，用<code class="highlighter-rouge">--grep</code>选项搜索提交说明中的关键字。<strong>如果要得到同时满足这两个选项搜索条件的提交，就必须用<code class="highlighter-rouge">--all-match</code>选项。否则，满足任意一个条件的提交都会被匹配出来</strong></p>
+
+<p>另一个非常有用的筛选选项是<code class="highlighter-rouge">-S</code>，可以列出那些添加或移除了某些字符串的提交。比如说，你想找出添加或移除了某一个特定函数的引用的提交，你可以这样使用：</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ git log -Sfunction_name
+</code></pre></div></div>
+
+<p>最后一个很实用的 git log 选项是路径（path），如果只关心某些文件或者目录的历史提交，可以在 git log 选项的最后指定它们的路径。因为是放在最后位置上的选项，所以用两个短划线<code class="highlighter-rouge">--</code>隔开之前的选项和后面限定的路径名。</p>
+
+<p>表 2-3. 限制 git log 输出的选项</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>选项</th>
+      <th>说明</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>-(n)</td>
+      <td>仅显示最近的 n 条提交</td>
+    </tr>
+    <tr>
+      <td>–since, –after</td>
+      <td>仅显示指定时间之后的提交</td>
+    </tr>
+    <tr>
+      <td>–until, –before</td>
+      <td>仅显示指定时间之前的提交</td>
+    </tr>
+    <tr>
+      <td>–author</td>
+      <td>仅显示指定作者相关的提交</td>
+    </tr>
+    <tr>
+      <td>–committer</td>
+      <td>仅显示指定提交者相关的提交</td>
+    </tr>
+    <tr>
+      <td>–grep</td>
+      <td>仅显示含指定关键字的提交</td>
+    </tr>
+    <tr>
+      <td>-S</td>
+      <td>仅显示添加或移除了某个关键字的提交</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>运行<code class="highlighter-rouge">git log --oneline --decorate --graph --all</code>，它会输出你的提交历史、各个分支的指向以及项目的分支分叉情况。</p>
+
+<h3 id="撤销操作">撤销操作</h3>
+
+<p>有时候我们提交完了才发现漏掉了几个文件没有添加，或者提交信息写错了。此时，可以运行带有<code class="highlighter-rouge">--amend</code>选项的提交命令尝试重新提交：</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ git commit --amend
+</code></pre></div></div>
+
+<p>这个命令会将暂存区中的文件提交。如果自上次提交以来你还未做任何修改（例如，在上次提交后马上执行了此命令），那么快照会保持不变，而你修改的只是提交信息。这个命令相当于撤销最后一次提交操作。</p>
+
+<h4 id="撤销暂存">撤销暂存</h4>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ git reset HEAD &lt;file&gt;...
+</code></pre></div></div>
+
+<blockquote>
+  <p>虽然在调用时加上<code class="highlighter-rouge">--hard</code>选项可以令<code class="highlighter-rouge">git reset</code>成为一个危险的命令（可能导致工作目录中所有当前进度丢失），但本例中工作目录内的文件并不会被修改。不加选项地调用<code class="highlighter-rouge">git reset</code>并不危险–它只会修改暂存区域。</p>
+</blockquote>
+
+<h4 id="撤销未暂存的修改">撤销未暂存的修改</h4>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ git checkout -- &lt;file&gt;...
+</code></pre></div></div>
+
+<blockquote>
+  <p>你需要知道<code class="highlighter-rouge">git checkout -- [file]</code>是一个危险的命令。你对那个文件做的任何修改都会消失-你只是拷贝了另一个文件来覆盖它。除非你确实清楚不想要那个文件来，否则不要使用这个命令。</p>
+</blockquote>
+
+<h3 id="远程仓库">远程仓库</h3>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ git remote
+origin
+$ git remote add pb
+https://github.com/paulboone/ticgit
+$ git remote -v
+origin https://github.com/schacon/ticgit(fetch)
+origin https://github.com/schacon/ticgit(push)
+pb     https://github.com/paulboone/ticgit(fetch)
+pb     https://github.com/paulboone/ticgit(push)
+</code></pre></div></div>
+
+<p>现在可以在本地通过<code class="highlighter-rouge">pb/master</code>访问pb服务器上的master分支，这里的这个‘pb/master’就叫远程跟踪分支。</p>
+
+<h4 id="从远程仓库中抓取与拉取">从远程仓库中抓取与拉取</h4>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ git fetch [remote-name]
+$ git fetch --all
+</code></pre></div></div>
+
+<p>这个命令会访问远程仓库，从中拉取所有你还没有的数据。执行完成后，你将拥有那个远程仓库中所有分支的引用，可以随时合并或查看。执行 fetch 命令后，会得到远程仓库分支的远程跟踪分支（如origin/branchname），这个分支指针是只读的，你可以将其合并到本地分支，也可以用如下命令在本地建立对应的本地分支（fetch不会自动建立）。</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ git checkout -b serverfix origin/serverfix
+# 本地的分支名称 serverfix 可以随便叫的哦。
+</code></pre></div></div>
+
+<p>如果你的协作者推送了自己的分支到服务器上，你执行 fetch 命令后本地没有那个分支，你可以通过上面这个命令在本地建立对应的分支，Git 还提供了另一个命令做相同的事：</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ git checkout --track origin/serverfix
+</code></pre></div></div>
+
+<blockquote>
+  <p><code class="highlighter-rouge">git fetch</code>命令会将数据拉取到你的本地仓库 - 它并不会自动合并或修改你当前的工作。当准备好时你必须手动将其合并入你的工作。</p>
+</blockquote>
+
+<p>运行<code class="highlighter-rouge">git pull</code>通常会从最初克隆的服务器上抓取数据并自动尝试合并到<strong>当前</strong>所在的分支。</p>
+
+<h4 id="查看远程仓库">查看远程仓库</h4>
+
+<p>如果想要查看某一个远程仓库的更多信息，可以使用<code class="highlighter-rouge">git remote show [remote-name]</code>命令。这个命令列出来当你在特定的分支上执行<code class="highlighter-rouge">git push</code>会自动地推送到哪一个远程分支。它同样地列出来哪些分支不在你的本地，哪些远程分支已经从服务器上移除了，还有当你执行<code class="highlighter-rouge">git pull</code>时哪些分支会自动合并。</p>
+
+<h4 id="远程仓库的移除与重命名">远程仓库的移除与重命名</h4>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ git remote rename pb paul
+$ git remote rm paul
+</code></pre></div></div>
+
+<h3 id="标签tag">标签（Tag）</h3>
+
+<p>Git 使用两种主要类型的标签：轻量标签（lightweight）与附注标签（annotated）。</p>
+
+<p>一个轻量标签很像一个不会改变的分支 - 它只是一个特定提交的引用。</p>
+
+<p>然而，附注标签是存储在 Git 数据库中的一个完整对象。 它们是可以被校验的；其中包含打标签者的名字、电子邮件地址、日期时间；还有一个标签信息；并且可以使用 GNU Privacy Guard （GPG）签名与验证。 通常建议创建附注标签，这样你可以拥有以上所有信息；但是如果你只是想用一个临时的标签，或者因为某些原因不想要保存那些信息，轻量标签也是可用的。</p>
+
+<h4 id="列出标签">列出标签</h4>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ git tag
+</code></pre></div></div>
+
+<p>也可以使用特定的模式查找标签(注意后面的通配符)：</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ git tag -l 'v1.8.5*'
+</code></pre></div></div>
+
+<h4 id="创建标签">创建标签</h4>
+
+<ol>
+  <li>创建附注标签</li>
+</ol>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ git tag -a v1.4 -m 'my version 1.4'
+</code></pre></div></div>
+
+<ol>
+  <li>创建轻量标签</li>
+</ol>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ git tag v1.4-lw
+</code></pre></div></div>
+
+<ol>
+  <li>事后打标签</li>
+</ol>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ git tag -a v1.2 9fceb02
+</code></pre></div></div>
+
+<p>要在那个提交上打标签，你需要在命令的末尾指定提交的校验和（或部分校验和）</p>
+
+<h4 id="输出标签信息">输出标签信息</h4>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ git show v1.4
+</code></pre></div></div>
+
+<h4 id="共享标签">共享标签</h4>
+
+<p>默认情况下，git push 命令并不会传送标签到远程仓库服务器上。</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code># 将tagname标签推送到共享服务器上
+$ git push origin [tagname]
+# 将不再远程仓库服务器上的标签全部传送到那里
+$ git push origin --tags
+</code></pre></div></div>
+
+<h4 id="检出标签">检出标签</h4>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ git checkout -b [branchname] [tagname]
+</code></pre></div></div>
+
+<h3 id="git-别名">Git 别名</h3>
+
+<p>可以通过 git config 文件来轻松地为每一个命令设置一个别名：</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ git config --global alias.co checkout
+$ git config --global alias.br branch
+$ git config --global alias.ci commit
+$ git config --global alias.st status
+$ git config --global alias.unstage 'reset HEAD --'
+$ git config --global alias.last 'log -1 HEAD'
+</code></pre></div></div>
+
+<p>这意味着，当要输入<code class="highlighter-rouge">git commit</code>时，只需要输入<code class="highlighter-rouge">git ci</code>。</p>
+
+<p>你可能想要执行外部命令，而不是一个 Git 子命令。这种情况，可以在命令前面加入<code class="highlighter-rouge">!</code>符号。</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ git config --global alias.visual '!gitk'
+</code></pre></div></div>
+
+<h2 id="第三章-git-分支">第三章 Git 分支</h2>
+
+<p>分支原理在《Pro Git》中讲的相当清楚，如有所疑惑，请前往查看。</p>
+
+<h3 id="创建分支">创建分支</h3>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ git checkout -b newBranchName
+</code></pre></div></div>
+
+<p>用<code class="highlighter-rouge">git branch newBranchName</code>也可以创建一个名称为 newBranchName 的新分支，但这个命令创建新分支后工作目录还是在当前分支，并没有切换到新分支上（仅创建而已），而<code class="highlighter-rouge">git checkout -b newBranchName</code>创建新分支后会把当前的分支也设置成新分支，所以我觉得这个命令会更常用。</p>
+
+<h3 id="本地分支查看">本地分支查看：</h3>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ git branch -v
+---
+iss53   93b412c fix javascript issue
+* master  7a98805 Merge branch 'iss53'
+testing 782fd34 add scott to the author list in the readmes
+</code></pre></div></div>
+
+<p>你可以简单地使用<code class="highlighter-rouge">git log</code>命令查看各个分支当前所指的对象。提供这一功能的参数是<code class="highlighter-rouge">--decorate</code>。</p>
+
+<p>虽然后面不加<code class="highlighter-rouge">-v</code>也可以，但加个<code class="highlighter-rouge">-v</code>就可以顺便列出每个分支最后一次提交的内容。</p>
+
+<p>有两个有用的选项<code class="highlighter-rouge">--merged</code>和<code class="highlighter-rouge">--no-merged</code>可以过滤这个列表中已经合并或尚未合并到当前分支的分支。</p>
+
+<h3 id="删除本地分支">删除本地分支</h3>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ git branch -d branchName
+</code></pre></div></div>
+
+<p>在<code class="highlighter-rouge">git branch</code>后面加<code class="highlighter-rouge">-d</code>再加分支名称即可删除本地的分支，Git在这里做了件特别安全的事情，如果你要删除的分支里有尚未合并到其他分支的内容，这条删除命令会执行失败，避免了工作内容的丢失；要强制删除这样的分支，把<code class="highlighter-rouge">-d</code>选项改为<code class="highlighter-rouge">-D</code>即可。</p>
+
+<h3 id="查看远程分支">查看远程分支</h3>
+
+<p>你可以通过<code class="highlighter-rouge">git ls-remote (remote)</code>来显式地获得远程引用的完整列表，或者通过<code class="highlighter-rouge">git remote show (remote)</code>获得远程分支的更多信息。</p>
+
+<h3 id="删除远程分支">删除远程分支</h3>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ git push origin --delete branchName
+</code></pre></div></div>
+
+<p>基本上这个命令做的只是从服务器上移除这个指针。Git服务器通常会保留数据一段时间直到垃圾回收运行，所以如果不小心删除掉了，通常是很容易恢复的。</p>
+
+<h3 id="分支合并冲突">分支合并冲突</h3>
+
+<p>基本的冲突解决方式不在赘述。使用<code class="highlighter-rouge">git merge</code>合并分支，解决冲突后，使用<code class="highlighter-rouge">git add</code>将冲突标记为解决。</p>
+
+<p>如果你想使用图形化工具来解决冲突，你可以运行<code class="highlighter-rouge">git mergetool</code>，该命令会为你启动一个合适的可视化合并工具，并带领你一步一步解决这些冲突。（如果你需要更加高级的工具来解决复杂的合并冲突，我们会在“高级合并”介绍更多关于分支合并的内容。）等你退出合并工具之后，Git会询问刚才的合并是否成功。如果你回答是，Git会暂存那些文件以表面冲突已解决。</p>
+
+<h3 id="变基">变基</h3>
+
+<p>使用 rebase 命令将提交到某一分支上的所有修改都移至另一分支上，就好像重新播放一样，在 Git 中，这种操作就叫做变基。使用变基方式合并的例子：</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ git checkout experiment
+# 将 experiment 分支的修改应用到 master 分支上
+$ git rebase master
+$ git checkout master
+$ git merge experiment
+</code></pre></div></div>
+
+<p>使用变基和merge这两种整合方式的最终结果没有任何区别，但是变基使得提交历史更加整洁。</p>
+
+<p>一个涉及到三个分支的变基示例：</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ git rebase --onto master server client
+</code></pre></div></div>
+
+<p>以上命令的意思是：“取出 client 分支，找出处于 client 分支和 server 分支的共同祖先之后的修改，然后把它们在 master 分支上重演一遍”</p>
+
+<p>更实用的命令（不需要关系当前在哪个分支）：</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code># 将 server 分支的修改应用到 master 分支上
+$ git rebase master server
+</code></pre></div></div>
+
+<p><strong>不要对在你的仓库外有副本的分支执行变基</strong></p>
+
+<p>变基的缺点可参考《Pro Git》，当你先推送一个分支到服务器，后对此分支进行变基操作，这致使此分支在你的版本库中消失，而其他人如果基于此分支进行了工作，那将带来麻烦。如果发生了这样的事，可以使其他协作者使用<code class="highlighter-rouge">git pull --rebase</code>进行补救。如果你习惯使用<code class="highlighter-rouge">git pull</code>，同时又希望默认使用选项<code class="highlighter-rouge">--rebase</code>，你可以执行这条语句<code class="highlighter-rouge">git config --global pull.rebase true</code>来更改<code class="highlighter-rouge">pull.rebase</code>的默认设置。</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ git pull --rebase
+# 相当于
+$ git fetch
+$ git rebase teamone/master
+</code></pre></div></div>
+
+<h3 id="设置跟踪">设置跟踪</h3>
+
+<p>设置已有的本地分支跟踪一个刚刚拉取下来的远程分支，或者想要修改正在跟踪的上游分支，你可以在任意时间使用<code class="highlighter-rouge">-u</code>或<code class="highlighter-rouge">--set-upstream-to</code>选项运行<code class="highlighter-rouge">git branch</code>来显式地设置。</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ git branch -u origin/serverfix
+</code></pre></div></div>
+
+<p>如果想要查看设置的所有跟踪分支，可以使用<code class="highlighter-rouge">git branch</code>的<code class="highlighter-rouge">-vv</code>选项。</p>
+
+<p>设置好跟踪关系后，就可以直接使用<code class="highlighter-rouge">git pull</code>和<code class="highlighter-rouge">git push</code>而不用再加任何参数了。</p>
+
+<p>当设置好跟踪分支后，可以通过 @{upstream} 或 @{u} 快捷方式来引用它。所以在 master 分支时并且它正在跟踪 origin/master 时，如果愿意的话可以使用<code class="highlighter-rouge">git merge @{u}</code>来取代<code class="highlighter-rouge">git merge origin/master</code>。</p>
+
+<h2 id="容易产生的误解">容易产生的误解</h2>
+
+<ul>
+  <li>
+    <p>使用git时要先更新（pull）、再提交（push）。这是没有必要的，这也是git的一个优越性所在，你可以尽管放心的直接push，如果别人往仓库中同样提交过代码，你的push操作将会失败，真他娘的贴心。</p>
+  </li>
+  <li>
+    <p>在 Git 中任何已提交的东西几乎总是可以恢复的。甚至那些被删除的分支中的提交或使用<code class="highlighter-rouge">--amend</code>选项覆盖的提交也可以恢复。</p>
+  </li>
+</ul>
+:ET
