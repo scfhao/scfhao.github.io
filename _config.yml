@@ -19,3 +19,12 @@ weibo_username: scfhao
 exclude: ["Rakefile"]
 # Build settings
 markdown: kramdown
+# Gitment
+gitment:
+  enable: true
+  githubID: scfhao
+  repo: scfhao.github.io
+  ClientID: c4a9af0a71eb6f7902da
+  ClientSecret: e213256273b633bbff4f60402e95e76ac363b30b
+  lazy: true
+  
