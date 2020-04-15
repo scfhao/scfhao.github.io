@@ -1,0 +1,14 @@
+<!-- 分页链接 -->
+<div class="entry-meta">
+{% if paginator.previous_page %}
+    <span class="post-category"><a href="{{ paginator.previous_page_path }}">上一页</a></span>
+{% else %}
+    <!-- <span class="previous">Previous</span> -->
+{% endif %}
+    <span class="post-category">页数: {{ paginator.page }} of {{ paginator.total_pages }}</span>
+{% if paginator.next_page %}
+    <span class="comments-link"><a href="{{ paginator.next_page_path }}">下一页</a></span>
+{% else %}
+    <!-- <span class="comments-link ">Next</span> -->
+{% endif %}
+</div>

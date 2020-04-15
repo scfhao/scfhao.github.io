@@ -1,0 +1,24 @@
+{% for post in paginator.posts %}
+<article class="post post-1">
+    <li>
+        <span class="post-meta">{{ post.date | date: "%b %-d, %Y" }}</span>
+
+        <h2>
+          <a class="post-link" href="{{ post.url | prepend: site.baseurl }}">{{ post.title }}</a>
+        </h2>
+      </li>
+    <!-- <header class="entry-header">
+    <h1 class="entry-title">
+        <a href="{{ post.url }}">{{ post.title }}</a>
+    </h1>
+    <div class="entry-meta">
+        <span class="post-category"><a href="{{ post.url }}">{{ post.categories }}</a></span>
+        <span class="post-category"><a href="{{ post.url }}">{{ post.tag }}</a></span>
+
+        <span class="post-date"><a href="{{ post.url }}"><time class="entry-date" datetime="{{ post.date }}">{{ post.date | date: "%B %d,%Y" }}</time></a></span>
+        <span class="comments-link"><a href="{{ post.url }}">HelloLux</a></span>
+    </div>
+    </header> -->
+</article>
+{% endfor %}
+{% include pagination.html %}

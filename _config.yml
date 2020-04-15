@@ -19,6 +19,10 @@ weibo_username: scfhao
 exclude: ["Rakefile"]
 # Build settings
 markdown: kramdown
+# paginate
+plugins: [jekyll-paginate]
+paginate: 10
+paginate_path: "page/:num/"
 # Leancloud
 valine:
   AppID: yqQA8xRYOn9OWYPxcAci81Gk-gzGzoHsz
