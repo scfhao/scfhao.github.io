@@ -13,7 +13,7 @@ description: > # this means to ignore newlines until "baseurl:"
   scfhao 博客
 baseurl: "" # the subpath of your site, e.g. /blog
 url: "https://blog.scfhao.cn" # the base hostname & protocol for your site
-theme: no-style-please
+remote-theme: no-style-please
 # twitter_username: scfhao
 github_username: scfhao
 weibo_username: scfhao
