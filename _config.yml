@@ -12,7 +12,7 @@ mailto: "邮件联系"
 description: > # this means to ignore newlines until "baseurl:"
   scfhao 博客
 baseurl: "" # the subpath of your site, e.g. /blog
-url: "https://blog.scfhao.cn" # the base hostname & protocol for your site
+url: "https://scfhao.cn" # the base hostname & protocol for your site
 remote-theme: no-style-please
 # twitter_username: scfhao
 github_username: scfhao
@@ -24,6 +24,8 @@ markdown: kramdown
 plugins: [jekyll-paginate]
 paginate: 10
 paginate_path: "page/:num/"
+# Google Ads
+google_ads_client: ca-pub-5741824894497098
 # Leancloud
 valine:
   AppID: yqQA8xRYOn9OWYPxcAci81Gk-gzGzoHsz

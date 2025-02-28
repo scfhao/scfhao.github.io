@@ -12,4 +12,9 @@
   <link rel="alternate" type="application/rss+xml" title="{{ site.title }}" href="{{ "/feed.xml" | prepend: site.baseurl | prepend: site.url }}">
   <!-- valine comment -->
   <script src='//unpkg.com/valine/dist/Valine.min.js'></script>
+  <!-- Google ads -->
+  {% if site.google_ads_client %}
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client={{ site.google_ads_client }}"
+     crossorigin="anonymous"></script>
+  {% endif %}
 </head>
